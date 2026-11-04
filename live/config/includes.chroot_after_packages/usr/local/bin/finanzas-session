@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Arranque de sesión de FinanzasOS (XFCE): fondo, ticker en vivo, servidor y terminal
+sleep 3
+WPDIR=/usr/share/backgrounds/finanzasos
+res=$(xrandr --current 2>/dev/null | awk '/\*/{print $1; exit}')
+WP="$WPDIR/wallpaper-$res.png"
+if [ ! -f "$WP" ]; then
+    mkdir -p "$HOME/.cache/finanzasos"; w=${res%x*}; h=${res#*x}; WP="$HOME/.cache/finanzasos/wallpaper-$res.png"
+    { python3 /opt/finanzas/branding/make_wallpaper.py "$HOME/.cache/finanzasos/wp.svg" "$w" "$h" >/dev/null &&
+      rsvg-convert -w "$w" -h "$h" "$HOME/.cache/finanzasos/wp.svg" -o "$WP"; } || WP="$WPDIR/wallpaper.png"
+fi
+# Fondo para todos los monitores y espacios de trabajo
+for mon in $(xrandr --listmonitors 2>/dev/null | awk 'NR>1{print $NF}') Virtual-1 Virtual1 default; do
+    for ws in 0 1 2 3 4 5 6 7; do
+        xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$mon/workspace$ws/last-image" -n -t string -s "$WP" 2>/dev/null
+        xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor$mon/workspace$ws/image-style" -n -t int -s 5 2>/dev/null
+    done
+done
+for p in $(xfconf-query -c xfce4-desktop -l 2>/dev/null | grep 'last-image$'); do xfconf-query -c xfce4-desktop -p "$p" -s "$WP"; done
+
+# Servidor de datos y ticker (conky) en la esquina superior izquierda
+/opt/finanzas/bin/finanzas --server
+mkdir -p "$HOME/.cache/finanzasos"
+sed -e "s#FINANZAS_DIR#/opt/finanzas#g" -e "s/gap_y = 56/gap_y = 22/" /opt/finanzas/conky/finanzas.conkyrc > "$HOME/.cache/finanzasos/conkyrc"
+pgrep -f "conky -c $HOME/.cache/finanzasos/conkyrc" >/dev/null || setsid -f conky -c "$HOME/.cache/finanzasos/conkyrc" >/dev/null 2>&1
+
+# Abrir cada programa en su escritorio (1 panel · 2 gráficos · 3 favoritas · 4 análisis y mercados · 5 sentimiento/noticias
+# · 6 backtest · 7 optimizador · 8 calculadoras/fórmulas). Desactivable creando ~/.config/finanzasos/no-autoopen
+[ -f "$HOME/.config/finanzasos/no-autoopen" ] || /opt/finanzas/bin/finanzas --escritorios

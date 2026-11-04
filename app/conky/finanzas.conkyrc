@@ -1,0 +1,41 @@
+-- FinanzasOS — panel de datos en tiempo real (esquina superior izquierda)
+conky.config = {
+    alignment = 'top_left',
+    gap_x = 18,
+    gap_y = 56,
+    minimum_width = 330,
+    maximum_width = 330,
+    background = true,
+    own_window = true,
+    own_window_type = 'desktop',
+    own_window_class = 'Conky',
+    own_window_title = 'finanzas-conky',
+    own_window_transparent = false,
+    own_window_argb_visual = true,
+    own_window_argb_value = 205,
+    own_window_colour = '070b12',
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+    double_buffer = true,
+    border_inner_margin = 14,
+    border_outer_margin = 0,
+    draw_borders = false,
+    draw_shades = false,
+    draw_outline = false,
+    use_xft = true,
+    font = 'JetBrains Mono:size=9',
+    override_utf8_locale = true,
+    update_interval = 1,
+    cpu_avg_samples = 2,
+    default_color = 'e6edf6',
+    text_buffer_size = 8192,
+};
+
+-- El ticker se recarga cada 15 s; el reloj cada segundo.
+conky.text = [[
+${font JetBrains Mono:bold:size=15}${color f5b700}Finanzas${color e6edf6}OS${font JetBrains Mono:size=8}${color 64748b}  MERCADOS EN VIVO
+${font JetBrains Mono:size=9}${color 64748b}${time %a %d %b %Y}${alignr}${font JetBrains Mono:bold:size=11}${color f5b700}${time %H:%M:%S}
+${execpi 15 python3 FINANZAS_DIR/conky/ticker.py}
+${color 263650}${hr 1}
+${font JetBrains Mono:size=8}${color 64748b}CPU ${color e6edf6}${cpu}%${alignr}${color 64748b}RAM ${color e6edf6}$mem / $memmax
+${color 64748b}Uptime ${color e6edf6}$uptime_short${alignr}${color 64748b}Procesos ${color e6edf6}$processes
+]];

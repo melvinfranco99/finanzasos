@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=FinanzasOS: abrir todo
+GenericName=Un programa por escritorio
+Comment=Abre cada programa de la suite en su propio escritorio (1-8)
+Exec=/opt/finanzas/bin/finanzas --escritorios
+Icon=finanzasos
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

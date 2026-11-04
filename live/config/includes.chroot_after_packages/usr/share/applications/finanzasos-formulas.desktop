@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Fórmulas financieras
+GenericName=Biblioteca de fórmulas
+Comment=Fórmulas de rentabilidad, riesgo, valoración y derivados
+Exec=/opt/finanzas/bin/finanzas formulas
+Icon=accessories-dictionary
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

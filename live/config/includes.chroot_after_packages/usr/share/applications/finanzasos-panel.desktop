@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=FinanzasOS Terminal
+GenericName=Terminal financiera
+Comment=Panel de control con mercados en tiempo real
+Exec=/opt/finanzas/bin/finanzas panel
+Icon=finanzasos
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Análisis y probabilidades
+GenericName=Análisis cuantitativo
+Comment=Probabilidad de subida/bajada, Monte Carlo, VaR, estacionalidad
+Exec=/opt/finanzas/bin/finanzas analisis
+Icon=office-chart-area
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

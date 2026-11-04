@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Calculadoras financieras
+GenericName=Calculadoras
+Comment=Interés compuesto, hipoteca, VAN/TIR, Black-Scholes, bonos, DCF…
+Exec=/opt/finanzas/bin/finanzas calculadoras
+Icon=accessories-calculator
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

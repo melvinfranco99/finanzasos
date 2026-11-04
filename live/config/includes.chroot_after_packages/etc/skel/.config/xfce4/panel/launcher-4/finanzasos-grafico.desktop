@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Gráficos profesionales
+GenericName=Gráficos de trading
+Comment=Velas, 40 indicadores técnicos y varias temporalidades
+Exec=/opt/finanzas/bin/finanzas grafico
+Icon=utilities-system-monitor
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

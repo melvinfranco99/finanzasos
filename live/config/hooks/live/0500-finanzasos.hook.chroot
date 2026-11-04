@@ -1,0 +1,44 @@
+#!/bin/sh
+# Personalización de FinanzasOS dentro del chroot
+set -e
+
+# Enlaces de los ejecutables
+chmod +x /opt/finanzas/bin/* /opt/finanzas/conky/ticker.py /usr/local/bin/finanzas-session
+ln -sf /opt/finanzas/bin/finanzas /usr/local/bin/finanzas
+
+# Precompilar Python
+python3 -m compileall -q /opt/finanzas/finanzas || true
+
+# Icono de la aplicación
+install -Dm644 /opt/finanzas/finanzas/static/logo.svg /usr/share/icons/hicolor/scalable/apps/finanzasos.svg
+gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
+
+# Fondos de pantalla en varias resoluciones
+mkdir -p /usr/share/backgrounds/finanzasos
+for r in 1920x1080 2560x1440 1366x768 3840x2160 1920x1200; do
+    w=${r%x*}; h=${r#*x}
+    python3 /opt/finanzas/branding/make_wallpaper.py /tmp/wp.svg "$w" "$h" >/dev/null
+    rsvg-convert -w "$w" -h "$h" /tmp/wp.svg -o "/usr/share/backgrounds/finanzasos/wallpaper-$r.png"
+done
+rm -f /tmp/wp.svg
+ln -sf wallpaper-1920x1080.png /usr/share/backgrounds/finanzasos/wallpaper.png
+
+# Fondo por defecto del sistema (desktop-base) y de la pantalla de acceso
+if [ -d /usr/share/images/desktop-base ]; then
+    update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background \
+        /usr/share/backgrounds/finanzasos/wallpaper.png 100 || true
+    update-alternatives --set desktop-background /usr/share/backgrounds/finanzasos/wallpaper.png || true
+fi
+
+# Navegador por defecto: Chromium
+update-alternatives --set x-www-browser /usr/bin/chromium 2>/dev/null || true
+
+# Identidad del sistema
+cat > /etc/os-release.finanzasos <<OSR
+FinanzasOS 1.0 (basada en Debian 13 trixie)
+OSR
+echo "FinanzasOS 1.0 — terminal financiera (Debian trixie) \\n \\l" > /etc/issue
+
+# Locale español
+sed -i 's/^# *es_ES.UTF-8/es_ES.UTF-8/' /etc/locale.gen
+locale-gen >/dev/null 2>&1 || true

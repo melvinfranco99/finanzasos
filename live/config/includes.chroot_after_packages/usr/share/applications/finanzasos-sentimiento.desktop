@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Miedo y euforia
+GenericName=Sentimiento de mercado
+Comment=Índices Fear & Greed de bolsa y cripto
+Exec=/opt/finanzas/bin/finanzas sentimiento
+Icon=weather-few-clouds
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

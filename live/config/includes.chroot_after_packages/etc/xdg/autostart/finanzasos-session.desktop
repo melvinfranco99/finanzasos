@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=FinanzasOS — sesión
+Comment=Fondo, ticker de mercados en vivo y servidor de datos
+Exec=/usr/local/bin/finanzas-session
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true
+NoDisplay=true

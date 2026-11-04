@@ -1,0 +1,80 @@
+# ---------- Sistema live ----------
+live-boot
+live-config
+live-config-systemd
+sudo
+curl
+ca-certificates
+locales
+console-setup
+keyboard-configuration
+fastfetch
+htop
+
+# ---------- Escritorio XFCE ----------
+xorg
+xfce4
+xfce4-goodies
+xfce4-whiskermenu-plugin
+lightdm
+lightdm-gtk-greeter
+network-manager
+network-manager-gnome
+pipewire-audio
+wireplumber
+pavucontrol
+gvfs-backends
+file-roller
+xdg-utils
+libnotify-bin
+x11-xserver-utils
+
+# ---------- Apariencia ----------
+arc-theme
+papirus-icon-theme
+fonts-inter
+fonts-jetbrains-mono
+fonts-dejavu
+fonts-noto-color-emoji
+fonts-stix
+librsvg2-bin
+
+# ---------- FinanzasOS ----------
+python3
+python3-flask
+python3-numpy
+python3-waitress
+chromium
+chromium-l10n
+conky-all
+
+# ---------- Finanzas, ofimática y ciencia de datos ----------
+libreoffice-calc
+libreoffice-gtk3
+libreoffice-l10n-es
+gnucash
+homebank
+gnumeric
+qalculate-gtk
+galculator
+python3-pandas
+python3-matplotlib
+python3-scipy
+hunspell-es
+
+# ---------- Firmware y microcódigo (portátiles reales) ----------
+firmware-linux
+firmware-linux-nonfree
+firmware-misc-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+intel-microcode
+amd64-microcode
+
+# ---------- Instalador gráfico al disco ----------
+calamares
+calamares-settings-debian
+xdotool
+x11-utils

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Guía de FinanzasOS
+GenericName=Guía paso a paso
+Comment=Aprende a usar todo el entorno, de cero a experto
+Exec=/opt/finanzas/bin/finanzas guia
+Icon=help-contents
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# FinanzasOS — lanzador de la terminal financiera
+#   finanzas [vista] [símbolo]     vistas: panel grafico analisis mercados sentimiento
+#                                          backtest optimizador calculadoras formulas noticias
+#   finanzas --server              solo arranca el servidor (para autostart)
+#   finanzas --stop                detiene el servidor
+#   finanzas --escritorios         abre cada programa en su propio escritorio virtual (1-8)
+#                                  (bspwm, XFCE y cualquier gestor EWMH; distribución en FINANZAS_LAYOUT)
+set -u
+SELF_DIR="$(dirname "$(readlink -f "$0")")"
+APP_DIR="${FINANZAS_DIR:-}"
+for d in "$APP_DIR" "$SELF_DIR/.." /opt/finanzas; do
+    [ -n "$d" ] && [ -f "$d/finanzas/server.py" ] && { APP_DIR="$(readlink -f "$d")"; break; }
+done
+PORT="${FINANZAS_PORT:-8765}"
+URL="http://127.0.0.1:$PORT"
+RUN="${XDG_RUNTIME_DIR:-/tmp}"
+LOG="$RUN/finanzas-server.log"
+
+up() { curl -fs -m 2 "$URL/api/health" >/dev/null 2>&1; }
+
+start_server() {
+    up && return 0
+    ( cd "$APP_DIR" && setsid -f python3 -m finanzas >"$LOG" 2>&1 )
+    for _ in $(seq 1 50); do up && return 0; sleep 0.2; done
+    notify-send -a FinanzasOS "FinanzasOS" "No se pudo iniciar el servidor. Revisa $LOG" 2>/dev/null
+    return 1
+}
+
+PROFILE="${XDG_CONFIG_HOME:-$HOME/.config}/finanzasos-browser"
+# escritorio:vista — un programa por escritorio (5 y 8 comparten dos vistas)
+LAYOUT="${FINANZAS_LAYOUT:-1:panel 2:grafico 3:favoritas 4:analisis 4:mercados 5:sentimiento 5:noticias 6:backtest 7:optimizador 8:calculadoras 8:formulas}"
+
+browser() {
+    for b in chromium chromium-browser google-chrome-stable google-chrome brave brave-browser microsoft-edge-stable vivaldi-stable; do
+        command -v "$b" >/dev/null 2>&1 && { echo "$b"; return; }
+    done
+}
+
+open_view() {   # open_view URL  → abre una ventana tipo aplicación
+    local b; b=$(browser)
+    if [ -n "$b" ]; then
+        setsid -f "$b" --app="$1" --user-data-dir="$PROFILE" --class=FinanzasOS \
+            --no-first-run --no-default-browser-check --password-store=basic --start-maximized >/dev/null 2>&1
+    elif command -v firefox >/dev/null; then setsid -f firefox --new-window "$1" >/dev/null 2>&1
+    else xdg-open "$1"; fi
+}
+
+wins() {   # ventanas gestionadas (_NET_CLIENT_LIST) de la suite, también las de otros escritorios
+    local w
+    for w in $(xprop -root _NET_CLIENT_LIST 2>/dev/null | grep -o '0x[0-9a-f]*'); do
+        xprop -id "$w" WM_CLASS 2>/dev/null | grep -q '"FinanzasOS"' && printf '%d\n' "$w"
+    done | sort
+}
+
+desktops() {
+    local first=1 item n view before new id
+    if command -v bspc >/dev/null && bspc query -D >/dev/null 2>&1; then WM=bspwm
+    elif command -v xdotool >/dev/null; then WM=ewmh
+        local need; need=$(echo "$LAYOUT" | tr ' ' '\n' | cut -d: -f1 | sort -n | tail -1)
+        [ "$(xdotool get_num_desktops 2>/dev/null || echo 0)" -lt "$need" ] && xdotool set_num_desktops "$need" 2>/dev/null
+    else WM=none; fi
+    for item in $LAYOUT; do
+        n=${item%%:*}; view=${item#*:}
+        before=$(wins)
+        [ "$WM" = bspwm ] && bspc rule -a FinanzasOS -o desktop="^$n" follow=off
+        open_view "$URL/#/$view"
+        [ "$WM" = none ] && continue
+        for _ in $(seq 1 60); do                        # espera a que aparezca la ventana (máx. 12 s)
+            new=$(comm -13 <(echo "$before") <(wins) | head -1)
+            [ -n "$new" ] && break; sleep 0.2
+        done
+        if [ -n "$new" ] && [ "$WM" = ewmh ]; then
+            xdotool set_desktop_for_window "$new" $((n - 1)) 2>/dev/null
+        elif [ -z "$new" ] && [ "$WM" = bspwm ]; then
+            bspc rule -r FinanzasOS 2>/dev/null           # no apareció: quita la regla pendiente
+        fi
+        [ $first = 1 ] && { first=0; sleep 1; }           # la primera arranca el navegador; las demás van más rápido
+    done
+    if [ "$WM" = bspwm ]; then bspc desktop -f "^1"; elif [ "$WM" = ewmh ]; then xdotool set_desktop 0; fi
+}
+
+case "${1:-}" in
+    --server) start_server; exit $? ;;
+    --stop) pkill -f "python3 -m finanzas$" ; exit 0 ;;
+    --escritorios) start_server || exit 1; desktops; exit 0 ;;
+esac
+
+start_server || exit 1
+VIEW="${1:-panel}"; SYM="${2:-}"
+open_view "$URL/#/$VIEW${SYM:+/$SYM}"

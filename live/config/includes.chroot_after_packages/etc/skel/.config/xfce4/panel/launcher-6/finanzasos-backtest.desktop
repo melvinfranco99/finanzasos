@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Backtesting
+GenericName=Simulador de estrategias
+Comment=Prueba estrategias con SL/TP, trailing, comisiones y gestión monetaria
+Exec=/opt/finanzas/bin/finanzas backtest
+Icon=media-playlist-repeat
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

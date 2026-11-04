@@ -1,0 +1,754 @@
+<title>Guía FinanzasOS</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+/* Layout: terminal financiera — barra fija con progreso, índice lateral fijo, columna de lectura con pasos y ejercicios */
+:root {
+  --bg: #070b12; --panel: #0d1420; --panel2: #121b2b; --line: #1e2b40; --fg: #e3eaf4; --muted: #8696ad; --dim: #5b6b82;
+  --gold: #f5b700; --gold-soft: rgba(245,183,0,.12); --up: #16c784; --down: #ea3943; --cyan: #38bdf8; --violet: #a78bfa;
+  --code: #0a111c;
+  --sans: "Inter", "Segoe UI", system-ui, sans-serif; --mono: "JetBrains Mono", "DejaVu Sans Mono", ui-monospace, monospace;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+  --bg: #f4f6fa; --panel: #ffffff; --panel2: #eef2f8; --line: #d7dfeb; --fg: #121a28; --muted: #4f5f78; --dim: #7a889e;
+  --gold: #9a6f00; --gold-soft: rgba(176,128,0,.10); --up: #0b8a5a; --down: #c62832; --cyan: #0b6fa8; --violet: #6d4fd1; --code: #eef2f8; color-scheme: light } }
+:root[data-theme="light"] { --bg: #f4f6fa; --panel: #ffffff; --panel2: #eef2f8; --line: #d7dfeb; --fg: #121a28; --muted: #4f5f78; --dim: #7a889e;
+  --gold: #9a6f00; --gold-soft: rgba(176,128,0,.10); --up: #0b8a5a; --down: #c62832; --cyan: #0b6fa8; --violet: #6d4fd1; --code: #eef2f8; color-scheme: light }
+* { box-sizing: border-box }
+html { scroll-behavior: smooth; scroll-padding-top: 76px }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto } }
+body { background: var(--bg); color: var(--fg); font: 15.5px/1.65 var(--sans); margin: 0 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--panel) }
+a { color: var(--cyan) }
+code, kbd, .mono { font-family: var(--mono); font-size: .88em }
+code { background: var(--code); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; white-space: nowrap }
+kbd { background: var(--panel2); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2 }
+h2 { font-size: 1.65rem; margin: 0 0 .3rem; letter-spacing: -.01em }
+h3 { font-size: 1.12rem; margin: 1.8rem 0 .5rem }
+p { margin: .6rem 0 }
+
+/* barra superior */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px }
+.top .in { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: 16px; flex-wrap: wrap }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.05rem; text-decoration: none; color: var(--fg) }
+.brand b { color: var(--gold) }
+.brand small { font: 600 .66rem var(--mono); letter-spacing: .14em; color: var(--muted) }
+.prog { margin-left: auto; display: flex; align-items: center; gap: 10px; font: 600 .78rem var(--mono); color: var(--muted) }
+.bar { width: 160px; height: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 6px; overflow: hidden }
+.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--up), var(--gold)); transition: width .3s }
+
+/* estructura */
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 80px }
+@media (max-width: 900px) { .wrap { grid-template-columns: minmax(0, 1fr) } .toc { display: none } }
+.toc { position: sticky; top: 84px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; font-size: .88rem }
+.toc .lv { font: 700 .68rem var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); margin: 16px 0 4px }
+.toc a { display: flex; justify-content: space-between; gap: 8px; padding: 4px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent }
+.toc a:hover { background: var(--panel2); color: var(--fg) }
+.toc a.on { color: var(--fg); border-left-color: var(--gold); background: var(--gold-soft) }
+.toc a .ck { font-family: var(--mono); color: var(--up); font-size: .78rem }
+main { min-width: 0 }
+
+/* portada */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 32px; align-items: center; padding-bottom: 28px; border-bottom: 1px solid var(--line) }
+@media (max-width: 1000px) { .hero { grid-template-columns: minmax(0, 1fr) } }
+.hero h1 { font-size: clamp(2rem, 4.4vw, 3.1rem); margin: .2rem 0 .8rem; letter-spacing: -.025em }
+.hero h1 em { font-style: normal; color: var(--gold) }
+.eyebrow { font: 700 .72rem var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--gold) }
+.lede { color: var(--muted); font-size: 1.06rem; max-width: 60ch }
+.route { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px }
+.route a { text-decoration: none; display: flex; flex-direction: column; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); min-width: 118px }
+.route a span { font: 700 .66rem var(--mono); color: var(--dim); letter-spacing: .1em }
+.route a strong { color: var(--fg); font-size: .92rem }
+.route a:hover { border-color: var(--gold) }
+.shot { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; max-width: 100% }
+.shot svg { display: block; width: 100%; height: auto }
+
+/* niveles */
+.level { padding-top: 46px }
+.lvhead { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 8px }
+.lvbadge { flex: none; width: 54px; height: 54px; border-radius: 12px; display: grid; place-items: center; font: 800 1.3rem var(--mono); border: 1px solid var(--line); background: var(--panel) }
+.l0 .lvbadge { color: var(--muted) } .l1 .lvbadge { color: var(--up) } .l2 .lvbadge { color: var(--cyan) } .l3 .lvbadge { color: var(--violet) } .l4 .lvbadge { color: var(--gold) } .lr .lvbadge { color: var(--muted) }
+.lvhead p { margin: 0; color: var(--muted) }
+.goal { font: 600 .8rem var(--mono); color: var(--dim); margin-top: 4px }
+
+/* pasos */
+.steps { counter-reset: s; list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 10px }
+.steps > li { counter-increment: s; position: relative; padding: 12px 14px 12px 50px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px }
+.steps > li::before { content: counter(s); position: absolute; left: 12px; top: 11px; width: 26px; height: 26px; border-radius: 50%; background: var(--panel2); border: 1px solid var(--line); display: grid; place-items: center; font: 700 .8rem var(--mono); color: var(--gold) }
+.steps > li p:first-child { margin-top: 0 } .steps > li p:last-child { margin-bottom: 0 }
+.see { font-size: .9rem; color: var(--muted) } .see::before { content: "Verás → "; font: 700 .75rem var(--mono); color: var(--up) }
+.path { font: 600 .84rem var(--mono); color: var(--fg); background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; white-space: normal }
+
+/* ejercicio */
+.ex { margin: 16px 0; border: 1px solid var(--line); border-left: 3px solid var(--up); border-radius: 10px; background: var(--panel); padding: 14px 16px }
+.ex header { display: flex; align-items: center; gap: 10px; justify-content: space-between; flex-wrap: wrap }
+.ex h4 { margin: 0; font-size: 1rem }
+.ex h4 span { font: 700 .7rem var(--mono); color: var(--up); letter-spacing: .1em; margin-right: 6px }
+.ex ul { margin: 8px 0 0; padding-left: 20px }
+.ex.done { border-left-color: var(--gold); background: linear-gradient(90deg, var(--gold-soft), var(--panel) 40%) }
+.done-btn { font: 600 .8rem var(--sans); border: 1px solid var(--line); background: var(--panel2); color: var(--fg); border-radius: 7px; padding: 5px 10px; cursor: pointer }
+.done-btn[aria-pressed="true"] { border-color: var(--gold); color: var(--gold) }
+.done-btn:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px }
+
+/* avisos */
+.tip, .warn { border-radius: 10px; padding: 10px 14px; margin: 12px 0; font-size: .93rem; border: 1px solid var(--line) }
+.tip { background: rgba(56,189,248,.07) } .tip b:first-child { color: var(--cyan) }
+.warn { background: rgba(234,57,67,.07) } .warn b:first-child { color: var(--down) }
+
+/* tablas */
+.tw { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 10px }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; background: var(--panel) }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top }
+th { font: 700 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel2) }
+tr:last-child td { border-bottom: 0 }
+td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap }
+.g { color: var(--up) } .r { color: var(--down) } .y { color: var(--gold) }
+
+/* herramientas interactivas */
+.tool { margin: 16px 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px }
+.tool h4 { margin: 0 0 10px; font-size: .95rem } .tool h4 small { color: var(--muted); font-weight: 500 }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px }
+.fields label { display: flex; flex-direction: column; gap: 4px; font-size: .78rem; color: var(--muted) }
+.fields input, .fields select { font: 600 .92rem var(--mono); background: var(--code); color: var(--fg); border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; width: 100% }
+.out { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px }
+.kpi { background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px }
+.kpi span { display: block; font: 600 .68rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+.kpi strong { font: 700 1.2rem var(--mono); font-variant-numeric: tabular-nums }
+.verdicts { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px }
+.verdicts li { display: flex; gap: 10px; align-items: baseline; font-size: .92rem }
+.pill { flex: none; font: 700 .68rem var(--mono); padding: 2px 8px; border-radius: 20px; border: 1px solid currentColor; min-width: 62px; text-align: center }
+canvas { display: block; width: 100%; max-width: 100%; height: 180px; margin-top: 12px }
+
+/* símbolos */
+.syms { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px }
+.sym { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: .86rem }
+.sym code { border: 0; background: none; padding: 0; color: var(--gold); font-weight: 700 }
+.sym button { font: 600 .72rem var(--sans); background: var(--panel2); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; cursor: pointer }
+.cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0 }
+.card h4 { margin: 0 0 4px; font-size: .95rem }
+.card p { margin: 0; font-size: .9rem; color: var(--muted) }
+.gloss { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 4px 24px; margin: 0 }
+.gloss dt { font-weight: 700; margin-top: 10px } .gloss dd { margin: 0; color: var(--muted); font-size: .92rem }
+footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--dim); font-size: .85rem }
+.diagram { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px; margin: 12px 0 }
+.diagram svg { display: block; min-width: 640px; width: 100%; height: auto }
+</style>
+
+<header class="top"><div class="in">
+  <a class="brand" href="#inicio">
+    <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="14" fill="#0f1622" stroke="#263650"/><g stroke="#16c784" stroke-width="2"><line x1="16" y1="18" x2="16" y2="44"/><rect x="12.5" y="24" width="7" height="13" fill="#16c784"/></g><g stroke="#ea3943" stroke-width="2"><line x1="30" y1="22" x2="30" y2="48"/><rect x="26.5" y="28" width="7" height="12" fill="#ea3943"/></g><polyline points="8,46 22,36 34,40 56,14" fill="none" stroke="#f5b700" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>Finanzas<b>OS</b> <small>GUÍA</small></span></a>
+  <div class="prog"><span id="progtxt">0 / 0 ejercicios</span><div class="bar" aria-hidden="true"><i id="progbar"></i></div></div>
+</div></header>
+
+<div class="wrap">
+<nav class="toc" id="toc" aria-label="Índice">
+  <div class="lv">Nivel 0 · Arranque</div>
+  <a href="#usb">Del USB al escritorio</a><a href="#escritorios">Los 8 escritorios</a>
+  <div class="lv">Nivel 1 · Principiante</div>
+  <a href="#ticker">Leer el ticker</a><a href="#panel">Panel de control</a><a href="#sentimiento">Miedo y euforia</a><a href="#calcs">Tus primeras calculadoras</a>
+  <div class="lv">Nivel 2 · Intermedio</div>
+  <a href="#buscar">Buscar cualquier activo</a><a href="#graficos">Gráficos y temporalidades</a><a href="#indicadores">Indicadores que importan</a><a href="#analisis">Probabilidades y riesgo</a><a href="#favoritas">Mis favoritas: ¿compro o vendo?</a>
+  <div class="lv">Nivel 3 · Avanzado</div>
+  <a href="#backtest">Tu primer backtest</a><a href="#metricas">Leer los resultados</a><a href="#reglas">Reglas propias</a><a href="#multi">Varios activos a la vez</a>
+  <div class="lv">Nivel 4 · Experto</div>
+  <a href="#optimizar">Optimizar sin engañarte</a><a href="#riesgo">Gestión del riesgo</a><a href="#rutina">Tu rutina profesional</a>
+  <div class="lv">Referencia</div>
+  <a href="#simbolos">Formato de símbolos</a><a href="#arch">Modo Finanzas en Arch</a><a href="#problemas">Problemas frecuentes</a><a href="#glosario">Glosario</a>
+</nav>
+
+<main>
+<section class="hero" id="inicio">
+  <div>
+    <div class="eyebrow">De cero a experto · paso a paso</div>
+    <h1>Saca todo el partido a <em>FinanzasOS</em></h1>
+    <p class="lede">Cada sección es práctica: qué abrir, qué escribir y qué deberías ver. Al final de cada una hay un ejercicio; márcalo como hecho y la barra de arriba guarda tu progreso en este navegador.</p>
+    <div class="route">
+      <a href="#usb"><span>NIVEL 0</span><strong>Arranque</strong></a>
+      <a href="#ticker"><span>NIVEL 1</span><strong>Principiante</strong></a>
+      <a href="#buscar"><span>NIVEL 2</span><strong>Intermedio</strong></a>
+      <a href="#backtest"><span>NIVEL 3</span><strong>Avanzado</strong></a>
+      <a href="#optimizar"><span>NIVEL 4</span><strong>Experto</strong></a>
+    </div>
+  </div>
+  <div class="shot" aria-label="Esquema de la pantalla de FinanzasOS">
+    <svg viewBox="0 0 520 320" role="img">
+      <rect width="520" height="320" fill="#0a1120"/>
+      <g stroke="#1b2a42"><path d="M0 40H520M0 80H520M0 120H520M0 160H520M0 200H520M0 240H520M0 280H520" /><path d="M65 0V320M130 0V320M195 0V320M260 0V320M325 0V320M390 0V320M455 0V320"/></g>
+      <rect x="12" y="12" width="150" height="196" rx="6" fill="#0d1420" stroke="#263650"/>
+      <text x="22" y="32" fill="#f5b700" font-family="monospace" font-size="12" font-weight="700">FinanzasOS</text>
+      <text x="22" y="48" fill="#8696ad" font-family="monospace" font-size="8">●NY ○LDN ●MAD ○TKY</text>
+      <g font-family="monospace" font-size="8.5"><text x="22" y="68" fill="#e3eaf4">S&amp;P 500</text><text x="152" y="68" fill="#16c784" text-anchor="end">+0,36%</text>
+      <text x="22" y="82" fill="#e3eaf4">IBEX 35</text><text x="152" y="82" fill="#ea3943" text-anchor="end">-0,79%</text>
+      <text x="22" y="96" fill="#e3eaf4">EUR/USD</text><text x="152" y="96" fill="#16c784" text-anchor="end">+0,10%</text>
+      <text x="22" y="110" fill="#e3eaf4">Oro</text><text x="152" y="110" fill="#16c784" text-anchor="end">+0,03%</text>
+      <text x="22" y="124" fill="#e3eaf4">Bitcoin</text><text x="152" y="124" fill="#16c784" text-anchor="end">+1,37%</text>
+      <text x="22" y="148" fill="#8696ad">Miedo/Euforia</text></g>
+      <rect x="22" y="154" width="130" height="7" rx="2" fill="#1e2b40"/><rect x="22" y="154" width="28" height="7" rx="2" fill="#ea3943"/>
+      <rect x="22" y="172" width="130" height="7" rx="2" fill="#1e2b40"/><rect x="22" y="172" width="44" height="7" rx="2" fill="#f97316"/>
+      <text x="22" y="198" fill="#5b6b82" font-family="monospace" font-size="7.5">ticker · esquina sup. izq.</text>
+      <g transform="translate(180,30)">
+        <rect width="326" height="220" rx="8" fill="#0d1420" stroke="#263650"/>
+        <rect width="326" height="20" rx="8" fill="#121b2b"/><text x="10" y="14" fill="#e3eaf4" font-family="sans-serif" font-size="9" font-weight="700">FinanzasOS · Gráficos pro · BTCUSDT 4H</text>
+        <g stroke-width="1.4">
+          <line x1="30" y1="50" x2="30" y2="96" stroke="#16c784"/><rect x="26" y="62" width="8" height="24" fill="#16c784"/>
+          <line x1="50" y1="56" x2="50" y2="104" stroke="#ea3943"/><rect x="46" y="66" width="8" height="28" fill="#ea3943"/>
+          <line x1="70" y1="70" x2="70" y2="118" stroke="#ea3943"/><rect x="66" y="82" width="8" height="24" fill="#ea3943"/>
+          <line x1="90" y1="80" x2="90" y2="120" stroke="#16c784"/><rect x="86" y="88" width="8" height="20" fill="#16c784"/>
+          <line x1="110" y1="64" x2="110" y2="104" stroke="#16c784"/><rect x="106" y="70" width="8" height="26" fill="#16c784"/>
+          <line x1="130" y1="50" x2="130" y2="86" stroke="#16c784"/><rect x="126" y="56" width="8" height="22" fill="#16c784"/>
+          <line x1="150" y1="44" x2="150" y2="80" stroke="#ea3943"/><rect x="146" y="52" width="8" height="18" fill="#ea3943"/>
+          <line x1="170" y1="48" x2="170" y2="84" stroke="#16c784"/><rect x="166" y="54" width="8" height="20" fill="#16c784"/>
+          <line x1="190" y1="34" x2="190" y2="70" stroke="#16c784"/><rect x="186" y="40" width="8" height="22" fill="#16c784"/>
+          <line x1="210" y1="30" x2="210" y2="62" stroke="#ea3943"/><rect x="206" y="36" width="8" height="16" fill="#ea3943"/>
+          <line x1="230" y1="26" x2="230" y2="58" stroke="#16c784"/><rect x="226" y="32" width="8" height="18" fill="#16c784"/>
+        </g>
+        <polyline points="20,92 60,92 100,96 140,80 180,66 230,48 300,40" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+        <polyline points="20,80 80,86 140,84 200,72 300,60" fill="none" stroke="#f5b700" stroke-width="1.5"/>
+        <line x1="10" y1="132" x2="316" y2="132" stroke="#1e2b40"/>
+        <polyline points="20,170 50,160 80,184 110,176 140,150 170,156 200,144 230,140 260,152 300,146" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="12" y="146" fill="#8696ad" font-family="monospace" font-size="7.5">RSI 14</text>
+        <line x1="10" y1="180" x2="316" y2="180" stroke="#1e2b40"/>
+        <g fill="#16c784"><rect x="26" y="200" width="8" height="12"/><rect x="86" y="196" width="8" height="16"/><rect x="126" y="202" width="8" height="10"/><rect x="186" y="192" width="8" height="20"/></g>
+        <g fill="#ea3943"><rect x="46" y="198" width="8" height="14"/><rect x="66" y="204" width="8" height="8"/><rect x="146" y="200" width="8" height="12"/></g>
+      </g>
+      <rect x="0" y="292" width="520" height="28" fill="#0d1420"/>
+      <g font-family="monospace" font-size="9" text-anchor="middle">
+        <rect x="150" y="298" width="20" height="16" rx="3" fill="#f5b700"/><text x="160" y="310" fill="#0a1120" font-weight="700">1</text>
+        <rect x="176" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="186" y="310" fill="#8696ad">2</text>
+        <rect x="202" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="212" y="310" fill="#8696ad">3</text>
+        <rect x="228" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="238" y="310" fill="#8696ad">4</text>
+        <rect x="254" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="264" y="310" fill="#8696ad">5</text>
+        <rect x="280" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="290" y="310" fill="#8696ad">6</text>
+        <rect x="306" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="316" y="310" fill="#8696ad">7</text>
+        <rect x="332" y="298" width="20" height="16" rx="3" fill="#121b2b"/><text x="342" y="310" fill="#8696ad">8</text>
+      </g>
+      <text x="370" y="310" fill="#5b6b82" font-family="monospace" font-size="8">un escritorio por programa</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ NIVEL 0 ============ -->
+<section class="level l0" id="usb">
+  <div class="lvhead"><div class="lvbadge">0</div><div><h2>Del USB al escritorio</h2><p>Grabar la imagen, arrancar y comprobar que llegan datos.</p><div class="goal">OBJETIVO · ver el ticker moviéndose en menos de 10 minutos</div></div></div>
+  <ol class="steps">
+    <li><p><b>Graba la ISO.</b> Con <b>Ventoy</b>, copia <code>finanzasos-amd64.hybrid.iso</code> al pen drive como un archivo más. Con <b>Rufus</b>, elige la ISO y, cuando pregunte, marca <b>«Escribir en modo imagen DD»</b>. En Linux: <code>sudo dd if=finanzasos-amd64.hybrid.iso of=/dev/sdX bs=4M status=progress</code>.</p></li>
+    <li><p><b>Arranca desde el USB.</b> Reinicia y pulsa la tecla del menú de arranque de tu PC (<kbd>F12</kbd>, <kbd>F11</kbd>, <kbd>F8</kbd> o <kbd>Esc</kbd>). Si no aparece el USB, desactiva <b>Secure Boot</b> en la BIOS.</p></li>
+    <li><p><b>Elige la entrada del menú.</b> A los 5 segundos arranca sola la primera.</p>
+      <div class="tw"><table><thead><tr><th>Entrada</th><th>Cuándo usarla</th></tr></thead><tbody>
+        <tr><td>FinanzasOS — sistema en vivo</td><td>Lo normal.</td></tr>
+        <tr><td>Copiar a la RAM</td><td>Tienes 6 GB de RAM o más. Va más rápido y puedes sacar el USB cuando termine de cargar.</td></tr>
+        <tr><td>Modo seguro (gráficos básicos)</td><td>La pantalla se queda en negro o parpadea con la gráfica de tu equipo.</td></tr>
+      </tbody></table></div></li>
+    <li><p><b>Conéctate a internet</b> con el icono de red del panel inferior. Sin red todo funciona igual, con datos de demostración marcados como <code>DEMO</code>.</p>
+      <p class="see">el ticker de arriba a la izquierda se actualiza cada 15 s y el punto de estado de la terminal pasa a verde.</p></li>
+  </ol>
+  <div class="tip"><b>Truco.</b> Lo que hagas en modo live se pierde al apagar. Si te gusta, usa el icono «Instalar Debian» del escritorio y conservarás estrategias, listas y ajustes.</div>
+  <div class="ex" data-ex="arranque"><header><h4><span>EJERCICIO</span>Arranque completo</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Arranca la ISO y conéctate a la red.</li><li>Comprueba que el S&amp;P 500 y Bitcoin del ticker no muestran <code>DEMO</code>.</li></ul></div>
+</section>
+
+<section class="level l0" id="escritorios">
+  <div class="lvhead"><div class="lvbadge">0</div><div><h2>Los 8 escritorios</h2><p>Cada programa de la suite se abre en su propio escritorio virtual. Es el mismo programa, así que comparten datos, símbolo y ajustes.</p></div></div>
+  <div class="diagram"><svg viewBox="0 0 800 210" role="img" aria-label="Reparto de programas por escritorio">
+    <g font-family="Inter, sans-serif">
+    <g transform="translate(10,10)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--gold)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">1</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Panel de control</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">resumen global del mercado</text></g>
+    <g transform="translate(205,10)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">2</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Gráficos pro</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">velas + 40 indicadores</text></g>
+    <g transform="translate(400,10)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">3</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Mis favoritas</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">¿compro o vendo? por plazo</text></g>
+    <g transform="translate(595,10)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">4</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Análisis + Mercados</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">probabilidades y 8 clases</text></g>
+    <g transform="translate(10,110)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">5</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Sentimiento + Noticias</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">miedo/euforia y titulares</text></g>
+    <g transform="translate(205,110)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">6</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Backtesting</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">probar estrategias</text></g>
+    <g transform="translate(400,110)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">7</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Optimizador</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">mejores parámetros</text></g>
+    <g transform="translate(595,110)"><rect width="185" height="90" rx="8" style="fill:var(--panel2);stroke:var(--line)"/><text x="12" y="24" font-family="monospace" font-size="13" font-weight="700" style="fill:var(--gold)">8</text><text x="12" y="50" font-size="14" font-weight="700" style="fill:var(--fg)">Calculadoras + Fórmulas</text><text x="12" y="70" font-size="11" style="fill:var(--muted)">22 calculadoras, 48 fórmulas</text></g>
+    </g></svg></div>
+  <div class="tw"><table><thead><tr><th>Acción</th><th>En la distro (XFCE)</th><th>En tu Arch (bspwm)</th></tr></thead><tbody>
+    <tr><td>Ir al escritorio N</td><td><kbd>Ctrl</kbd>+<kbd>F1</kbd>…<kbd>F8</kbd> o clic en el panel</td><td>tu atajo habitual (<kbd>Super</kbd>+<kbd>1</kbd>…<kbd>8</kbd>)</td></tr>
+    <tr><td>Abrir todos los programas en su escritorio</td><td colspan="2"><code>finanzas --escritorios</code> (lo hace solo al arrancar o al activar el modo)</td></tr>
+    <tr><td>Abrir solo un programa</td><td colspan="2"><code>finanzas grafico BTCUSDT</code>, <code>finanzas backtest</code>, <code>finanzas guia</code>…</td></tr>
+  </tbody></table></div>
+  <div class="tip"><b>Por qué así.</b> Puedes tener el gráfico de BTC en el escritorio 2 mientras el optimizador trabaja en el 7, sin perder ninguna de las dos vistas.</div>
+  <div class="ex" data-ex="escritorios"><header><h4><span>EJERCICIO</span>Recorre los escritorios</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Pasa del escritorio 1 al 8 con el teclado y nombra en voz alta qué hay en cada uno.</li><li>Cierra la ventana del escritorio 2 y vuelve a abrirla con <code>finanzas grafico</code>.</li></ul></div>
+</section>
+
+<!-- ============ NIVEL 1 ============ -->
+<section class="level l1" id="ticker">
+  <div class="lvhead"><div class="lvbadge">1</div><div><h2>Leer el ticker</h2><p>La esquina superior izquierda es tu vistazo de cinco segundos al mundo.</p><div class="goal">OBJETIVO · saber en un vistazo si hoy es día de miedo o de euforia</div></div></div>
+  <div class="tw"><table><thead><tr><th>Línea</th><th>Qué significa</th><th>Cómo usarla</th></tr></thead><tbody>
+    <tr><td><code>●NY ○LDN ●MAD</code></td><td>Bolsas abiertas (●) o cerradas (○) ahora mismo.</td><td>Con una bolsa cerrada, su precio no se mueve hasta que vuelva a abrir.</td></tr>
+    <tr><td>Índices (S&amp;P 500, Nasdaq, IBEX…)</td><td>Variación del día en %.</td><td>Si todos van en verde o todos en rojo, el día lo marca la macro, no la empresa concreta.</td></tr>
+    <tr><td>EUR/USD, USD/JPY</td><td>Precio de una divisa en la otra.</td><td>Si el EUR/USD sube, el euro se aprecia y tus activos en dólares valen menos en euros.</td></tr>
+    <tr><td>Oro, Brent</td><td>Refugio y energía.</td><td>Oro arriba y bolsa abajo es la típica huida del riesgo.</td></tr>
+    <tr><td>Bono USA 10A</td><td>Rentabilidad del bono a 10 años (%).</td><td>Cuando sube rápido suele castigar a la tecnología y al crecimiento.</td></tr>
+    <tr><td>VIX</td><td>Volatilidad esperada del S&amp;P 500.</td><td>Por debajo de 15 hay calma, por encima de 25 hay nervios y por encima de 35 hay pánico.</td></tr>
+    <tr><td>Barras de miedo/euforia</td><td>0 = miedo extremo, 100 = euforia extrema.</td><td>Mira si las tres barras coinciden o se contradicen.</td></tr>
+  </tbody></table></div>
+  <div class="ex" data-ex="ticker"><header><h4><span>EJERCICIO</span>Parte del día en 3 frases</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Escribe en un papel: «La bolsa USA va… El dólar… El sentimiento es…» usando solo el ticker.</li><li>Repite mañana a la misma hora y compara.</li></ul></div>
+</section>
+
+<section class="level l1" id="panel">
+  <div class="lvhead"><div class="lvbadge">1</div><div><h2>Panel de control</h2><p>Escritorio 1. Es la portada de tu periódico financiero.</p></div></div>
+  <ol class="steps">
+    <li><p>Mira las <b>tarjetas</b>: precio, variación y mini-gráfica del día. Haz clic en cualquiera y te lleva a su gráfico.</p></li>
+    <li><p>Baja hasta el <b>mapa de calor</b>: cada recuadro es un gran valor, con más verde cuanto más sube y más rojo cuanto más baja.</p><p class="see">si casi todo es del mismo color, el mercado se mueve en bloque.</p></li>
+    <li><p>Revisa <b>mayores subidas y bajadas</b> y la <b>matriz de correlaciones</b>. Una correlación cercana a +1 indica que dos activos se mueven juntos; cercana a −1, que se mueven al revés.</p></li>
+  </ol>
+  <div class="tip"><b>Para diversificar.</b> Busca en la matriz activos con correlación baja o negativa entre sí. Tener tres activos con correlación 0,9 es casi como tener uno solo.</div>
+  <div class="ex" data-ex="panel"><header><h4><span>EJERCICIO</span>Encuentra un refugio</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>En la matriz de correlaciones, localiza el activo con la correlación más negativa frente al S&amp;P 500.</li><li>Haz clic en él y comprueba en su gráfico diario qué hizo en la última caída fuerte de la bolsa.</li></ul></div>
+</section>
+
+<section class="level l1" id="sentimiento">
+  <div class="lvhead"><div class="lvbadge">1</div><div><h2>Miedo y euforia</h2><p>Escritorio 5. Tres medidores con un mismo propósito: detectar los extremos.</p></div></div>
+  <div class="cols2">
+    <div class="card"><h4>CNN Fear &amp; Greed</h4><p>Bolsa USA. Combina 7 componentes: momento, amplitud, put/call, VIX, bonos basura, demanda de refugio y nuevos máximos.</p></div>
+    <div class="card"><h4>Crypto Fear &amp; Greed</h4><p>Criptomonedas (alternative.me). Volatilidad, volumen, redes sociales y dominancia de BTC.</p></div>
+    <div class="card"><h4>Índice propio FOS</h4><p>Lo calcula tu equipo con datos de Yahoo y 7 componentes en percentil. Funciona aunque CNN no responda.</p></div>
+  </div>
+  <div class="tw"><table><thead><tr><th class="num">Valor</th><th>Lectura</th><th>Uso práctico</th></tr></thead><tbody>
+    <tr><td class="num r">0–24</td><td>Miedo extremo</td><td>A largo plazo, históricamente ha sido mejor momento para comprar poco a poco que para vender con pánico.</td></tr>
+    <tr><td class="num" style="color:#f97316">25–44</td><td>Miedo</td><td>Prudencia; vigila soportes.</td></tr>
+    <tr><td class="num y">45–55</td><td>Neutral</td><td>El sentimiento no aporta señal.</td></tr>
+    <tr><td class="num" style="color:#84cc16">56–75</td><td>Euforia</td><td>La tendencia sigue, pero ajusta stops.</td></tr>
+    <tr><td class="num g">76–100</td><td>Euforia extrema</td><td>Evita comprar de golpe y piensa en recoger beneficios.</td></tr>
+  </tbody></table></div>
+  <div class="warn"><b>Ojo.</b> El sentimiento puede quedarse en un extremo durante semanas. Úsalo como contexto, no como señal de entrada por sí solo.</div>
+  <div class="ex" data-ex="sentimiento"><header><h4><span>EJERCICIO</span>Busca un extremo pasado</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>En el histórico de 1 año del medidor, localiza el día de mínimo miedo.</li><li>Abre el gráfico diario del S&amp;P 500 (<code>^GSPC</code>) y mira cuánto subió o bajó en los 3 meses siguientes.</li></ul></div>
+</section>
+
+<section class="level l1" id="calcs">
+  <div class="lvhead"><div class="lvbadge">1</div><div><h2>Tus primeras calculadoras</h2><p>Escritorio 8. Cada una tiene su fórmula, una gráfica y una tabla año a año.</p></div></div>
+  <p>Empieza por estas tres, en este orden:</p>
+  <ol class="steps">
+    <li><p><b>Inflación y poder adquisitivo</b>: cuánto valdrán tus 10.000 € dentro de 10 años si no los inviertes.</p></li>
+    <li><p><b>Interés compuesto con aportaciones</b>: lo que consigues invirtiendo una cantidad fija cada mes. Pruébalo aquí mismo:</p>
+      <div class="tool" id="tcomp"><h4>Interés compuesto <small>· versión rápida de la calculadora</small></h4>
+        <div class="fields">
+          <label for="ci0">Capital inicial (€)<input id="ci0" type="number" value="5000" min="0" step="100"></label>
+          <label for="ciM">Aportación mensual (€)<input id="ciM" type="number" value="200" min="0" step="10"></label>
+          <label for="ciR">Rentabilidad anual (%)<input id="ciR" type="number" value="7" step="0.5"></label>
+          <label for="ciY">Años<input id="ciY" type="number" value="20" min="1" max="60"></label>
+        </div>
+        <div class="out"><div class="kpi"><span>Capital final</span><strong id="ciF" class="y">—</strong></div><div class="kpi"><span>Has aportado</span><strong id="ciA">—</strong></div><div class="kpi"><span>Intereses generados</span><strong id="ciI" class="g">—</strong></div></div>
+        <canvas id="ciC" aria-label="Evolución del capital frente a lo aportado"></canvas>
+      </div></li>
+    <li><p><b>Tamaño de posición y riesgo/beneficio</b>: cuántas acciones comprar para arriesgar solo un 1 % de tu cuenta. La verás a fondo en el <a href="#riesgo">nivel 4</a>.</p></li>
+  </ol>
+  <div class="ex" data-ex="calcs"><header><h4><span>EJERCICIO</span>El coste de esperar</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Con la calculadora de arriba, compara 30 años con 200 €/mes frente a 20 años con 300 €/mes al 7 %.</li><li>Abre «Regla del 72» en el escritorio 8 y comprueba en cuántos años se duplica tu dinero al 7 %.</li></ul></div>
+</section>
+
+<!-- ============ NIVEL 2 ============ -->
+<section class="level l2" id="buscar">
+  <div class="lvhead"><div class="lvbadge">2</div><div><h2>Buscar cualquier activo</h2><p>Acciones de cualquier bolsa, ETFs, fondos, índices, divisas, materias primas, bonos y todos los pares de Binance.</p><div class="goal">OBJETIVO · abrir un activo que no esté en ninguna lista</div></div></div>
+  <ol class="steps">
+    <li><p>Haz clic en el buscador superior, o en cualquier campo <b>Activo</b> del backtest o del optimizador, y escribe el <b>nombre</b>, no hace falta el código: <code>santander</code>, <code>tesla</code>, <code>vanguard s&amp;p</code>, <code>pepe</code>…</p></li>
+    <li><p>Aparece una lista con el símbolo, el nombre, el tipo (acción, ETF, cripto…) y la bolsa. Las criptomonedas de Binance salen marcadas como <b>Binance · tiempo real</b>.</p><p class="see">por ejemplo «Banco Santander · SAN.MC · Acción · Madrid».</p></li>
+    <li><p>Pulsa <kbd>Enter</kbd> o haz clic en el resultado. Se abre el gráfico, o se rellena el campo si estás en el backtest.</p></li>
+  </ol>
+  <div class="tip"><b>¿Cripto en Yahoo o en Binance?</b> Prefiere el par de Binance (<code>SOLUSDT</code>): es tiempo real y tiene velas desde 1 minuto. El símbolo de Yahoo (<code>SOL-USD</code>) sirve para compararlo con acciones en euros o dólares. Formatos completos en <a href="#simbolos">Formato de símbolos</a>.</div>
+  <div class="ex" data-ex="buscar"><header><h4><span>EJERCICIO</span>Tres activos nuevos</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Abre una acción española que no esté en el panel (por ejemplo Inditex).</li><li>Abre una criptomoneda pequeña de Binance.</li><li>Abre un ETF de bonos o de oro.</li></ul></div>
+</section>
+
+<section class="level l2" id="graficos">
+  <div class="lvhead"><div class="lvbadge">2</div><div><h2>Gráficos y temporalidades</h2><p>Escritorio 2. La herramienta en la que pasarás más horas.</p></div></div>
+  <ol class="steps">
+    <li><p>Escribe <code>BTCUSDT</code> en el buscador y elige la temporalidad <b>1D</b>.</p></li>
+    <li><p>Cambia el tipo a <b>Heikin-Ashi</b>: suaviza el ruido y hace que las tendencias se vean a simple vista. Vuelve a <b>Velas</b> para operar, porque Heikin-Ashi no muestra los precios reales.</p></li>
+    <li><p>Activa la <b>escala logarítmica</b> en gráficos de muchos años: un +100 % de 10 a 20 mide lo mismo que de 1.000 a 2.000.</p></li>
+    <li><p>Activa <b>soportes/resistencias</b> y <b>pivotes</b>. Dibuja una línea horizontal en un nivel que te importe.</p></li>
+  </ol>
+  <h3>Análisis multitemporal (el método «de arriba abajo»)</h3>
+  <div class="tw"><table><thead><tr><th>Temporalidad</th><th>Pregunta que responde</th><th>Perfil</th></tr></thead><tbody>
+    <tr><td><b>1S / 1M</b></td><td>¿Cuál es la tendencia de fondo?</td><td>Inversor a largo plazo</td></tr>
+    <tr><td><b>1D</b></td><td>¿Dónde están los niveles clave?</td><td>Swing trading (días o semanas)</td></tr>
+    <tr><td><b>4H / 1H</b></td><td>¿Hay un buen punto de entrada ahora?</td><td>Swing / intradía</td></tr>
+    <tr><td><b>15m / 5m / 1m</b></td><td>¿Cuál es el momento exacto?</td><td>Intradía / scalping</td></tr>
+  </tbody></table></div>
+  <div class="tip"><b>Regla práctica.</b> Opera en una temporalidad, pero decide la dirección con la siguiente más alta (de 4H a 1D, de 1D a 1S). Si la temporalidad mayor baja, no compres en la menor.</div>
+  <div class="ex" data-ex="graficos"><header><h4><span>EJERCICIO</span>De arriba abajo</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Mira el mismo activo en 1S, 1D y 4H. Apunta si cada uno es alcista, bajista o lateral.</li><li>¿Coinciden las tres? Si no, ¿cuál manda para una operación de 2 semanas?</li></ul></div>
+</section>
+
+<section class="level l2" id="indicadores">
+  <div class="lvhead"><div class="lvbadge">2</div><div><h2>Indicadores que importan</h2><p>Hay 40, pero no necesitas más de 3 o 4 a la vez: uno de tendencia, uno de momento, uno de volatilidad y el volumen.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Familia</th><th>Indicador</th><th>Cómo leerlo</th><th>Trampa típica</th></tr></thead><tbody>
+    <tr><td>Tendencia</td><td><b>EMA 20/50/200</b></td><td>Precio por encima de la EMA 200 en diario indica tendencia alcista de fondo. El cruce de la 50 sobre la 200 se llama «cruce dorado».</td><td>En lateral da muchas señales falsas.</td></tr>
+    <tr><td>Tendencia</td><td><b>ADX / DMI</b></td><td>ADX &gt; 25 indica que hay tendencia; +DI sobre −DI, que es alcista.</td><td>No dice la dirección por sí solo, eso lo dicen +DI y −DI.</td></tr>
+    <tr><td>Tendencia</td><td><b>SuperTrend</b></td><td>Línea verde bajo el precio para estar comprado y roja encima para estar fuera.</td><td>Llega tarde en giros bruscos.</td></tr>
+    <tr><td>Momento</td><td><b>RSI 14</b></td><td>&gt; 70 sobrecompra, &lt; 30 sobreventa. Las divergencias (precio sube, RSI baja) avisan de agotamiento.</td><td>En tendencia fuerte puede estar semanas por encima de 70.</td></tr>
+    <tr><td>Momento</td><td><b>MACD 12/26/9</b></td><td>MACD cruza la señal al alza indica impulso alcista. Histograma creciendo, impulso acelerando.</td><td>Es lento; combínalo con niveles.</td></tr>
+    <tr><td>Momento</td><td><b>Estocástico</b></td><td>Cruces de %K y %D en zonas &lt; 20 o &gt; 80.</td><td>Muy ruidoso en temporalidades cortas.</td></tr>
+    <tr><td>Volatilidad</td><td><b>Bollinger 20, 2</b></td><td>Bandas estrechas anuncian un movimiento fuerte cerca. Un toque de banda en lateral suele revertir.</td><td>En tendencia, el precio «camina» por la banda.</td></tr>
+    <tr><td>Volatilidad</td><td><b>ATR 14</b></td><td>Movimiento medio por vela. Sirve para colocar stops: 2 × ATR es un stop razonable.</td><td>No indica dirección.</td></tr>
+    <tr><td>Volumen</td><td><b>Volumen, OBV, MFI</b></td><td>Una ruptura con volumen alto es más fiable. Si el OBV sube y el precio está plano, hay acumulación.</td><td>En forex Yahoo no da volumen real.</td></tr>
+  </tbody></table></div>
+  <ol class="steps">
+    <li><p>En el escritorio 2, abre el selector de indicadores y añade <b>EMA 50</b>, <b>EMA 200</b>, <b>RSI 14</b> y <b>Volumen</b>.</p></li>
+    <li><p>Haz clic en el lápiz de cada indicador para cambiar periodos y colores.</p></li>
+    <li><p>Mira la tarjeta lateral <b>Resumen técnico</b>: cuenta cuántos indicadores dicen compra y cuántos venta.</p></li>
+  </ol>
+  <div class="ex" data-ex="indicadores"><header><h4><span>EJERCICIO</span>Tu plantilla de 4 indicadores</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Monta una plantilla: una media, un oscilador, Bollinger o ATR, y volumen.</li><li>Busca en el gráfico diario una divergencia de RSI de los últimos 6 meses y mira qué pasó después.</li></ul></div>
+</section>
+
+<section class="level l2" id="analisis">
+  <div class="lvhead"><div class="lvbadge">2</div><div><h2>Probabilidades y riesgo</h2><p>Escritorio 4. No predice el futuro: te dice qué ha pasado históricamente en situaciones parecidas.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Modelo</th><th>Idea</th><th>Cuándo fiarte más</th></tr></thead><tbody>
+    <tr><td>Empírico</td><td>Frecuencia real de subidas en el horizonte elegido.</td><td>Con muchos años de historia.</td></tr>
+    <tr><td>Log-normal (GBM)</td><td>Usa la media y la volatilidad recientes.</td><td>En mercados estables.</td></tr>
+    <tr><td>Régimen</td><td>Solo cuenta los momentos con RSI y tendencia parecidos a hoy.</td><td>Cuando el mercado está en un extremo.</td></tr>
+    <tr><td>Regresión logística</td><td>Aprende de varios indicadores a la vez.</td><td>Horizontes cortos.</td></tr>
+  </tbody></table></div>
+  <ol class="steps">
+    <li><p>Abre un activo y mira la tabla de horizontes. Un valor del 55 % significa que en 55 de cada 100 casos parecidos subió.</p></li>
+    <li><p>Mira el <b>cono de Monte Carlo</b>: 2.000 futuros simulados. La banda P5–P95 es el rango razonable; fuera de ella pasa el 10 % de las veces.</p></li>
+    <li><p>Lee el <b>VaR 95 %</b>: «en 1 de cada 20 días perderás al menos esto». El <b>CVaR</b> es la media de esos días malos.</p></li>
+    <li><p>Consulta la <b>estacionalidad</b>: qué meses y días de la semana han sido mejores históricamente.</p></li>
+  </ol>
+  <div class="warn"><b>Importante.</b> Una probabilidad del 52 % no es una ventaja operable después de costes. Busca coincidencias: varios modelos por encima del 60 %, tendencia a favor y sentimiento no eufórico.</div>
+  <div class="ex" data-ex="analisis"><header><h4><span>EJERCICIO</span>¿Cuánto puedo perder?</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Con 10.000 € en Bitcoin y en el S&amp;P 500, apunta el VaR diario del 95 % de cada uno.</li><li>¿Cuántas veces más arriesgado es uno que el otro? Compáralo también con su volatilidad anual.</li></ul></div>
+</section>
+
+<section class="level l2" id="favoritas">
+  <div class="lvhead"><div class="lvbadge">2</div><div><h2>Mis favoritas: ¿compro o vendo?</h2><p>Escritorio 3. Tus empresas, tu plazo y una respuesta clara, con todos los datos que la justifican.</p><div class="goal">OBJETIVO · decidir con datos, no con titulares</div></div></div>
+  <ol class="steps">
+    <li><p><b>Elige tu plazo</b> arriba: 1, 3, 6, 12 o 24 meses. Todo el análisis se recalcula para ese plazo.</p></li>
+    <li><p><b>Gestiona tu lista.</b> Viene con NVIDIA, Amazon, Apple, Shopify, Estée Lauder, Wynn Resorts, Celsius y Netflix. Añade cualquier empresa escribiendo su nombre y quita las que no quieras con la ✕. La lista se guarda sola.</p></li>
+    <li><p><b>Lee el ranking</b>: ordenado de mejor a peor para tu plazo, con veredicto, rentabilidad estimada, rango probable y probabilidad de subir.</p><p class="see">por ejemplo «NVDA · Comprar · +16 % · −17 % … +63 % · 71 %».</p></li>
+    <li><p><b>Haz clic en una empresa</b> para ver el análisis completo: el veredicto en los 5 plazos, los motivos a favor y en contra, la proyección en el gráfico, el plan orientativo (stop, objetivo y R:B), los analistas y las tablas de factores técnicos, fundamentales y macro.</p></li>
+  </ol>
+  <h3>Cómo decide el veredicto</h3>
+  <div class="tw"><table><thead><tr><th>Plazo</th><th class="num">Técnico</th><th class="num">Fundamental</th><th class="num">Macro</th><th>Por qué</th></tr></thead><tbody>
+    <tr><td>1 mes</td><td class="num">60 %</td><td class="num">15 %</td><td class="num">25 %</td><td>A corto plazo manda el impulso del precio.</td></tr>
+    <tr><td>3 meses</td><td class="num">50 %</td><td class="num">25 %</td><td class="num">25 %</td><td></td></tr>
+    <tr><td>6 meses</td><td class="num">35 %</td><td class="num">40 %</td><td class="num">25 %</td><td>Empiezan a pesar los resultados de la empresa.</td></tr>
+    <tr><td>12 meses</td><td class="num">20 %</td><td class="num">60 %</td><td class="num">20 %</td><td></td></tr>
+    <tr><td>24 meses</td><td class="num">10 %</td><td class="num">70 %</td><td class="num">20 %</td><td>A largo plazo el precio sigue a los beneficios.</td></tr>
+  </tbody></table></div>
+  <div class="cols2">
+    <div class="card"><h4>Técnico (13 factores)</h4><p>Medias de 50 y 200 sesiones, RSI, MACD, ADX, momento a 3 y 12 meses, distancia a máximos, fuerza relativa frente al S&amp;P 500 y frente a su sector, volatilidad y el resumen de indicadores.</p></div>
+    <div class="card"><h4>Fundamental (13 factores)</h4><p>PEG, PER futuro, crecimiento de ventas y beneficios, revisiones de estimaciones, márgenes, ROE, deuda, flujo de caja libre, precio objetivo y recomendación de los analistas, sorpresas en resultados y posiciones cortas.</p></div>
+    <div class="card"><h4>Macro (6 factores)</h4><p>Tendencia del S&amp;P 500, VIX, bono USA a 10 años, dólar y miedo/euforia. Es el mismo contexto para todas tus empresas.</p></div>
+    <div class="card"><h4>Rentabilidad estimada (4 modelos)</h4><p>Histórico ajustado al mercado, situaciones parecidas del pasado, analistas (reducido al 60 % por su optimismo habitual) y valoración por beneficios y crecimiento.</p></div>
+  </div>
+  <div class="tw"><table><thead><tr><th>Veredicto</th><th class="num">Puntuación</th><th>Qué hacer</th></tr></thead><tbody>
+    <tr><td class="g">Compra fuerte</td><td class="num">≥ +0,35</td><td>Casi todo a favor. Entra con tu tamaño normal y con stop.</td></tr>
+    <tr><td style="color:#84cc16">Comprar</td><td class="num">+0,12 … +0,35</td><td>Más a favor que en contra. Entra por partes.</td></tr>
+    <tr><td class="y">Mantener / esperar</td><td class="num">−0,12 … +0,12</td><td>Si la tienes, mantén; si no, espera una señal más clara.</td></tr>
+    <tr><td style="color:#f97316">Vender / reducir</td><td class="num">−0,35 … −0,12</td><td>Reduce la posición o no entres todavía.</td></tr>
+    <tr><td class="r">Venta fuerte</td><td class="num">≤ −0,35</td><td>Casi todo en contra. Protege el capital.</td></tr>
+  </tbody></table></div>
+  <div class="warn"><b>Léelo bien.</b> Es una estimación estadística, no una certeza. Fíjate en el <b>rango probable</b> además de en la cifra central, y en la <b>confianza</b>: si técnico, fundamental y macro no coinciden, la confianza baja. Que a 1 mes diga «vender» y a 24 meses «comprar» no es una contradicción, sino la diferencia entre el ruido del precio y el valor de la empresa.</div>
+  <div class="ex" data-ex="favoritas"><header><h4><span>EJERCICIO</span>Tu primera decisión razonada</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Añade una empresa que tengas o que te interese, y pon tu plazo real.</li><li>Escribe en una frase por qué compras o no, usando los dos motivos a favor y los dos en contra que más pesen.</li><li>Comprueba el veredicto en <i>Gráficos</i> (escritorio 2) y valida una estrategia sobre ella en el <i>Backtest</i> (escritorio 6).</li></ul></div>
+</section>
+
+<!-- ============ NIVEL 3 ============ -->
+<section class="level l3" id="backtest">
+  <div class="lvhead"><div class="lvbadge">3</div><div><h2>Tu primer backtest</h2><p>Escritorio 6. Prueba una estrategia con datos reales del pasado antes de arriesgar un euro.</p><div class="goal">OBJETIVO · saber si una estrategia bate a «comprar y mantener»</div></div></div>
+  <ol class="steps">
+    <li><p><b>Activo:</b> escribe <code>bitcoin</code> y elige <code>BTCUSDT</code>. <b>Temporalidad:</b> <code>1d</code>. <b>Desde</b> <code>2019-01-01</code> <b>hasta</b> hoy. <b>Capital:</b> 10.000.</p></li>
+    <li><p><b>Estrategia:</b> «Cruce de medias», rápida 20 y lenta 100, tipo EMA. Dirección: <b>Solo largos</b>.</p></li>
+    <li><p>Deja SL, TP y comisión a 0 la primera vez. Pulsa <b>Ejecutar backtest</b>.</p><p class="see">la curva de capital frente a comprar y mantener, el drawdown, las flechas de entrada y salida en el gráfico y las conclusiones escritas.</p></li>
+    <li><p>Ahora añade un <b>stop-loss de 2 × ATR</b> (campo «SL en ATR») y repite. Compara el drawdown máximo.</p></li>
+    <li><p>Pon una <b>comisión del 0,1 %</b> (lo que cobra Binance) y vuelve a ejecutar. Si la estrategia deja de ganar, no era buena.</p></li>
+  </ol>
+  <div class="tip"><b>Cómo funciona por dentro.</b> Las señales se calculan al cierre de la vela y se ejecutan en la apertura de la siguiente, sin mirar el futuro. Si una vela toca el SL y el TP a la vez, se asume el SL, el caso peor. Los huecos de apertura se respetan.</div>
+  <div class="ex" data-ex="backtest"><header><h4><span>EJERCICIO</span>Tres estrategias, un activo</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>En el mismo activo y periodo, ejecuta «Cruce de medias», «RSI» y «Tortugas/Donchian».</li><li>Ordénalas por Sharpe y por drawdown máximo. ¿Gana la misma en las dos columnas?</li></ul></div>
+</section>
+
+<section class="level l3" id="metricas">
+  <div class="lvhead"><div class="lvbadge">3</div><div><h2>Leer los resultados</h2><p>27 métricas. Estas seis deciden si una estrategia vale la pena.</p></div></div>
+  <div class="tool" id="tmet"><h4>Intérprete de resultados <small>· copia aquí los números de tu backtest</small></h4>
+    <div class="fields">
+      <label for="mSh">Sharpe<input id="mSh" type="number" step="0.05" value="1.1"></label>
+      <label for="mPF">Factor de beneficio<input id="mPF" type="number" step="0.05" value="1.6"></label>
+      <label for="mDD">Drawdown máx. (%)<input id="mDD" type="number" step="1" value="-28"></label>
+      <label for="mN">Nº operaciones<input id="mN" type="number" step="1" value="42"></label>
+      <label for="mCg">CAGR estrategia (%)<input id="mCg" type="number" step="0.5" value="24"></label>
+      <label for="mBh">CAGR comprar y mantener (%)<input id="mBh" type="number" step="0.5" value="31"></label>
+    </div>
+    <ul class="verdicts" id="mOut"></ul>
+  </div>
+  <div class="tw"><table><thead><tr><th>Métrica</th><th>Qué mide</th><th class="num">Malo</th><th class="num">Aceptable</th><th class="num">Bueno</th></tr></thead><tbody>
+    <tr><td>Sharpe</td><td>Rentabilidad por unidad de volatilidad (anualizado)</td><td class="num r">&lt; 0,5</td><td class="num y">0,5–1</td><td class="num g">&gt; 1</td></tr>
+    <tr><td>Sortino</td><td>Igual que el Sharpe, pero solo castiga la volatilidad a la baja</td><td class="num r">&lt; 0,7</td><td class="num y">0,7–1,5</td><td class="num g">&gt; 1,5</td></tr>
+    <tr><td>Factor de beneficio</td><td>Ganancias brutas ÷ pérdidas brutas</td><td class="num r">&lt; 1,2</td><td class="num y">1,2–1,6</td><td class="num g">&gt; 1,6</td></tr>
+    <tr><td>Drawdown máximo</td><td>Peor caída desde un máximo de la cuenta</td><td class="num r">&lt; −40 %</td><td class="num y">−40…−20 %</td><td class="num g">&gt; −20 %</td></tr>
+    <tr><td>Calmar</td><td>CAGR ÷ |drawdown máximo|</td><td class="num r">&lt; 0,3</td><td class="num y">0,3–1</td><td class="num g">&gt; 1</td></tr>
+    <tr><td>Nº operaciones</td><td>Fiabilidad estadística del resultado</td><td class="num r">&lt; 30</td><td class="num y">30–100</td><td class="num g">&gt; 100</td></tr>
+    <tr><td>% aciertos y payoff</td><td>Se miran juntos: un 35 % de aciertos con un payoff de 3 es muy rentable</td><td colspan="3" class="num">esperanza = %acierto × ganancia media − %fallo × pérdida media</td></tr>
+  </tbody></table></div>
+  <div class="ex" data-ex="metricas"><header><h4><span>EJERCICIO</span>Pasa el filtro</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Mete en el intérprete los números de tus tres estrategias del ejercicio anterior.</li><li>¿Alguna sale sin ninguna alerta roja? Esa es tu candidata para el nivel 4.</li></ul></div>
+</section>
+
+<section class="level l3" id="reglas">
+  <div class="lvhead"><div class="lvbadge">3</div><div><h2>Reglas propias</h2><p>El constructor de reglas combina cualquiera de los 40 indicadores, el precio y valores fijos con lógica Y/O.</p></div></div>
+  <ol class="steps">
+    <li><p>En Estrategia elige <b>Reglas personalizadas</b>.</p></li>
+    <li><p><b>Entrada (Y):</b> <span class="path">Precio · Cierre</span> <b>está por encima de</b> <span class="path">Indicador · EMA 200</span>.</p></li>
+    <li><p><b>Y además:</b> <span class="path">Indicador · RSI 14</span> <b>cruza al alza</b> <span class="path">Valor fijo · 40</span>.</p></li>
+    <li><p><b>Salida (O):</b> <span class="path">Indicador · RSI 14</span> <b>cruza a la baja</b> <span class="path">Valor fijo · 75</span>, <b>o</b> <span class="path">Precio · Cierre</span> <b>cruza a la baja</b> <span class="path">EMA 200</span>.</p>
+      <p class="see">«comprar retrocesos dentro de una tendencia alcista», una de las estrategias más robustas que existen.</p></li>
+  </ol>
+  <div class="tw"><table><thead><tr><th>Idea</th><th>Entrada</th><th>Salida</th></tr></thead><tbody>
+    <tr><td>Ruptura con volumen</td><td>Cierre cruza al alza Donchian superior (20) <b>Y</b> oscilador de volumen &gt; 0</td><td>Cierre cruza a la baja Donchian inferior (10)</td></tr>
+    <tr><td>Compresión de Bollinger</td><td>Ancho de Bollinger &lt; 0,05 <b>Y</b> cierre cruza al alza la banda superior</td><td>Cierre cruza a la baja la media central</td></tr>
+    <tr><td>Tendencia confirmada</td><td>ADX &gt; 25 <b>Y</b> +DI cruza al alza −DI</td><td>ADX &lt; 20 <b>O</b> SL 2 × ATR</td></tr>
+  </tbody></table></div>
+  <div class="ex" data-ex="reglas"><header><h4><span>EJERCICIO</span>Tu primera estrategia original</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Construye la estrategia «retrocesos en tendencia» de arriba y ejecútala en 3 activos distintos.</li><li>Cambia una sola cosa (RSI 40 por 35) y anota cómo cambia el Sharpe.</li></ul></div>
+</section>
+
+<section class="level l3" id="multi">
+  <div class="lvhead"><div class="lvbadge">3</div><div><h2>Varios activos a la vez</h2><p>Una estrategia que solo funciona en un activo probablemente es casualidad. Pruébala en muchos.</p></div></div>
+  <ol class="steps">
+    <li><p>En el backtest, abre <b>Comparar en más activos</b> y añade activos con el buscador: cada uno aparece como una etiqueta. También puedes cargar una cesta preparada: <b>Índices</b>, <b>Big Tech</b>, <b>IBEX</b>, <b>Cripto top</b>, <b>Materias primas</b>, <b>Divisas</b>.</p></li>
+    <li><p>Pulsa <b>Ejecutar en todos</b>. Se lanza la misma estrategia, con los mismos parámetros, en cada activo.</p><p class="see">una tabla ordenable con rentabilidad, CAGR, Sharpe, drawdown, operaciones y si bate a comprar y mantener, más el porcentaje de activos en los que gana.</p></li>
+    <li><p>Haz clic en una fila para ver el backtest completo de ese activo.</p></li>
+  </ol>
+  <div class="tip"><b>Criterio de robustez.</b> Si la estrategia es rentable en al menos el 70 % de los activos de una misma clase con parámetros idénticos, probablemente capta algo real del mercado.</div>
+  <div class="ex" data-ex="multi"><header><h4><span>EJERCICIO</span>Test de robustez</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Ejecuta tu estrategia original sobre la cesta «Cripto top» y luego sobre «Índices».</li><li>¿En qué clase de activo funciona mejor? ¿Tiene sentido por cómo se comporta esa clase?</li></ul></div>
+</section>
+
+<!-- ============ NIVEL 4 ============ -->
+<section class="level l4" id="optimizar">
+  <div class="lvhead"><div class="lvbadge">4</div><div><h2>Optimizar sin engañarte</h2><p>Escritorio 7. El optimizador prueba cientos de combinaciones. El peligro es quedarte con la que mejor encaja con el pasado por pura suerte.</p><div class="goal">OBJETIVO · parámetros que funcionen también en datos que no se usaron para elegirlos</div></div></div>
+  <ol class="steps">
+    <li><p>Elige activo, temporalidad y estrategia predefinida. El optimizador rellena la rejilla de parámetros, por ejemplo rápida <code>5,10,15,20,30</code> y lenta <code>40,50,100,150,200</code>.</p></li>
+    <li><p>Añade valores de SL y TP a probar (<code>0,3,5,8</code>) y elige el <b>objetivo</b>: Sharpe, Calmar o Sortino son mejores que «rentabilidad», que premia el riesgo.</p></li>
+    <li><p>Deja la división en <b>70 %</b> dentro de muestra y <b>30 %</b> fuera de muestra, y un mínimo de 20 operaciones.</p></li>
+    <li><p>Ejecuta y mira el <b>mapa de calor</b>: busca <b>mesetas</b>, zonas amplias de buen color, no un único punto brillante rodeado de rojo.</p></li>
+    <li><p>Compara las columnas <b>Dentro</b> y <b>Fuera de muestra</b> de las mejores filas. Una caída fuerte fuera de muestra es sobreajuste.</p></li>
+    <li><p>Con un clic en la fila elegida la mandas al backtest completo. Repite allí el test multi-activo.</p></li>
+  </ol>
+  <div class="diagram"><svg viewBox="0 0 760 120" role="img" aria-label="División dentro y fuera de muestra">
+    <rect x="10" y="30" width="520" height="40" rx="6" style="fill:var(--panel2);stroke:var(--cyan)"/><text x="270" y="55" font-family="Inter, sans-serif" font-size="14" text-anchor="middle" font-weight="700" style="fill:var(--fg)">70 % · dentro de muestra (se eligen los parámetros)</text>
+    <rect x="536" y="30" width="214" height="40" rx="6" style="fill:var(--panel2);stroke:var(--gold)"/><text x="643" y="55" font-family="Inter, sans-serif" font-size="14" text-anchor="middle" font-weight="700" style="fill:var(--fg)">30 % · examen final</text>
+    <text x="10" y="98" font-family="Inter, sans-serif" font-size="12" style="fill:var(--muted)">Si el resultado fuera de muestra se mantiene en al menos la mitad del de dentro, el parámetro es creíble.</text>
+  </svg></div>
+  <div class="warn"><b>La trampa más cara.</b> Optimizar, mirar el resultado fuera de muestra, cambiar algo y volver a optimizar. Cada vez que lo haces, el «examen final» deja de serlo. Decide antes de mirar.</div>
+  <div class="ex" data-ex="optimizar"><header><h4><span>EJERCICIO</span>Detecta el sobreajuste</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Optimiza el cruce de medias en <code>ETHUSDT</code> 4H con objetivo «rentabilidad» y después con «Calmar».</li><li>Compara cuánto cae cada ganador fuera de muestra.</li></ul></div>
+</section>
+
+<section class="level l4" id="riesgo">
+  <div class="lvhead"><div class="lvbadge">4</div><div><h2>Gestión del riesgo</h2><p>La estrategia decide cuándo entrar; la gestión del riesgo decide si sobrevives. Calculadoras «Tamaño de posición» y «Kelly» del escritorio 8.</p></div></div>
+  <div class="tool" id="trisk"><h4>Tamaño de posición <small>· regla del riesgo fijo</small></h4>
+    <div class="fields">
+      <label for="rCap">Cuenta (€)<input id="rCap" type="number" value="10000" step="100"></label>
+      <label for="rPct">Riesgo por operación (%)<input id="rPct" type="number" value="1" step="0.25" min="0.1"></label>
+      <label for="rIn">Precio de entrada<input id="rIn" type="number" value="100" step="0.01"></label>
+      <label for="rSL">Stop-loss<input id="rSL" type="number" value="94" step="0.01"></label>
+      <label for="rTP">Objetivo<input id="rTP" type="number" value="115" step="0.01"></label>
+    </div>
+    <div class="out"><div class="kpi"><span>Unidades a comprar</span><strong id="rQ" class="y">—</strong></div><div class="kpi"><span>Tamaño de la posición</span><strong id="rV">—</strong></div><div class="kpi"><span>Pérdida si salta el SL</span><strong id="rL" class="r">—</strong></div><div class="kpi"><span>Riesgo : beneficio</span><strong id="rRR" class="g">—</strong></div></div>
+  </div>
+  <div class="cols2">
+    <div class="card"><h4>Arriesga el 0,5–2 % por operación</h4><p>Con un 1 % necesitas 69 pérdidas seguidas para perder la mitad de la cuenta. Con un 10 %, solo 7.</p></div>
+    <div class="card"><h4>Riesgo:beneficio de 1:2 o más</h4><p>Con 1:2 eres rentable acertando solo el 34 % de las veces (antes de costes).</p></div>
+    <div class="card"><h4>Kelly, pero a la mitad</h4><p>El criterio de Kelly da el tamaño óptimo teórico. En la práctica, usa ½ o ¼ de Kelly: el original produce caídas brutales.</p></div>
+    <div class="card"><h4>Recupera más de lo que pierdes</h4><p>Tras perder un 50 % necesitas un +100 % para volver al punto de partida. Lo tienes en la calculadora «Recuperación tras pérdidas».</p></div>
+  </div>
+  <div class="ex" data-ex="riesgo"><header><h4><span>EJERCICIO</span>Dimensiona una operación real</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Elige un activo en el escritorio 2, coloca un stop en 2 × ATR bajo el precio y calcula aquí el tamaño para arriesgar el 1 %.</li><li>Ajusta el «Tamaño posición %» del backtest a ese valor y compara el drawdown con el 100 %.</li></ul></div>
+</section>
+
+<section class="level l4" id="rutina">
+  <div class="lvhead"><div class="lvbadge">4</div><div><h2>Tu rutina profesional</h2><p>Todo junto, en el orden de los escritorios.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Cuándo</th><th>Escritorio</th><th>Qué haces</th><th class="num">Tiempo</th></tr></thead><tbody>
+    <tr><td>Cada mañana</td><td>Ticker + 1</td><td>Sesiones abiertas, índices, VIX, bono 10A y miedo/euforia. Escribe tu parte en 3 frases.</td><td class="num">5 min</td></tr>
+    <tr><td>Cada mañana</td><td>5</td><td>Titulares: ¿hay datos macro o resultados hoy?</td><td class="num">5 min</td></tr>
+    <tr><td>Antes de operar</td><td>3 → 2 → 4</td><td>Mira el veredicto de tus favoritas, después el análisis de arriba abajo, niveles, probabilidades y VaR del activo.</td><td class="num">10 min</td></tr>
+    <tr><td>Antes de operar</td><td>8</td><td>Tamaño de posición con riesgo del 1 % y R:B mínimo de 1:2.</td><td class="num">2 min</td></tr>
+    <tr><td>Cada fin de semana</td><td>6 → 7</td><td>Revisa tus estrategias en el backtest, prueba ideas nuevas y valídalas en varios activos y fuera de muestra.</td><td class="num">1 h</td></tr>
+    <tr><td>Cada mes</td><td>4</td><td>Estacionalidad y correlaciones de tu cartera; reequilibra si un activo pesa demasiado.</td><td class="num">30 min</td></tr>
+  </tbody></table></div>
+  <div class="ex" data-ex="rutina"><header><h4><span>EJERCICIO</span>Una semana de rutina</h4><button class="done-btn" aria-pressed="false">Marcar como hecho</button></header>
+    <ul><li>Sigue la rutina 5 días seguidos y anota cada operación que habrías hecho, con su entrada, stop y objetivo, sin dinero real.</li><li>El fin de semana, compara tus apuntes con lo que pasó.</li></ul></div>
+</section>
+
+<!-- ============ REFERENCIA ============ -->
+<section class="level lr" id="simbolos">
+  <div class="lvhead"><div class="lvbadge">R</div><div><h2>Formato de símbolos</h2><p>No hace falta saberlos de memoria porque el buscador los encuentra por nombre, pero viene bien conocerlos. Pulsa <b>Copiar</b> y pégalo en el buscador.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Tipo</th><th>Formato</th><th>Ejemplos</th></tr></thead><tbody>
+    <tr><td>Acción USA</td><td>código</td><td><code>AAPL</code> <code>MSFT</code> <code>NVDA</code></td></tr>
+    <tr><td>Acción España</td><td>código<code>.MC</code></td><td><code>SAN.MC</code> <code>ITX.MC</code> <code>IBE.MC</code></td></tr>
+    <tr><td>Alemania / Francia / Londres / Milán / Ámsterdam</td><td><code>.DE</code> <code>.PA</code> <code>.L</code> <code>.MI</code> <code>.AS</code></td><td><code>SAP.DE</code> <code>MC.PA</code> <code>ASML.AS</code></td></tr>
+    <tr><td>Índice</td><td><code>^</code>código</td><td><code>^GSPC</code> <code>^IBEX</code> <code>^GDAXI</code> <code>^N225</code></td></tr>
+    <tr><td>Divisa</td><td>par<code>=X</code></td><td><code>EURUSD=X</code> <code>GBPEUR=X</code> <code>USDJPY=X</code></td></tr>
+    <tr><td>Futuro / materia prima</td><td>código<code>=F</code></td><td><code>GC=F</code> (oro) <code>BZ=F</code> (Brent) <code>NG=F</code> (gas)</td></tr>
+    <tr><td>Bono / tipos</td><td><code>^</code>código</td><td><code>^TNX</code> (10A USA) <code>^IRX</code> (3 meses)</td></tr>
+    <tr><td>Cripto Binance (tiempo real)</td><td>moneda + <code>USDT</code>, <code>USDC</code>, <code>EUR</code>, <code>BTC</code>…</td><td><code>BTCUSDT</code> <code>ETHEUR</code> <code>SOLUSDT</code> <code>ETHBTC</code></td></tr>
+    <tr><td>Cripto Yahoo</td><td>moneda<code>-USD</code> / <code>-EUR</code></td><td><code>BTC-EUR</code> <code>ADA-USD</code></td></tr>
+  </tbody></table></div>
+  <div class="syms" id="syms"></div>
+</section>
+
+<section class="level lr" id="arch">
+  <div class="lvhead"><div class="lvbadge">R</div><div><h2>Modo Finanzas en Arch</h2><p>El cuarto botón de tu polybar, junto a normal, incógnito y paranoico.</p></div></div>
+  <div class="tw"><table><thead><tr><th>Acción</th><th>Resultado</th></tr></thead><tbody>
+    <tr><td>Clic izquierdo en el icono del gráfico</td><td>Fondo financiero a tu resolución, ticker arriba a la izquierda y cada programa en su escritorio (1–8). El icono se vuelve dorado.</td></tr>
+    <tr><td>Clic derecho</td><td>Abre otra ventana del panel.</td></tr>
+    <tr><td>Clic en «normal»</td><td>Restaura tu fondo, cierra el ticker, las ventanas y el servidor.</td></tr>
+    <tr><td>Terminal</td><td><code>finanzas-mode on</code> · <code>off</code> · <code>toggle</code> · <code>status</code></td></tr>
+  </tbody></table></div>
+  <div class="tip"><b>Con el modo paranoico.</b> Sin red, la suite sigue funcionando con datos de demostración, así que puedes practicar con el backtest y las calculadoras igualmente.</div>
+</section>
+
+<section class="level lr" id="problemas">
+  <div class="lvhead"><div class="lvbadge">R</div><div><h2>Problemas frecuentes</h2></div></div>
+  <div class="tw"><table><thead><tr><th>Síntoma</th><th>Solución</th></tr></thead><tbody>
+    <tr><td>Todo aparece como <code>DEMO</code></td><td>No hay red, o Yahoo limita las peticiones. Espera un minuto; Binance suele seguir funcionando.</td></tr>
+    <tr><td>Un precio europeo va con retraso</td><td>Yahoo da algunas bolsas con unos 15 minutos de retraso. Las criptomonedas de Binance son tiempo real.</td></tr>
+    <tr><td>El backtest intradía tiene pocas velas</td><td>Yahoo limita el intradía a 60 días (5–30m) o 2 años (1h/4h). En cripto usa el par de Binance: hasta 6.000 velas.</td></tr>
+    <tr><td>No veo el ticker</td><td>En Arch instala conky (<code>sudo pacman -S conky</code>) y vuelve a activar el modo.</td></tr>
+    <tr><td>Pantalla negra al arrancar el USB</td><td>Usa «modo seguro (gráficos básicos)» en el menú de arranque.</td></tr>
+    <tr><td>Cerré una ventana</td><td><code>finanzas --escritorios</code> las reabre todas en su sitio, o usa el menú «FinanzasOS».</td></tr>
+  </tbody></table></div>
+</section>
+
+<section class="level lr" id="glosario">
+  <div class="lvhead"><div class="lvbadge">R</div><div><h2>Glosario</h2></div></div>
+  <dl class="gloss">
+    <div><dt>CAGR</dt><dd>Crecimiento anual compuesto: la rentabilidad media anual que lleva del valor inicial al final.</dd></div>
+    <div><dt>Drawdown</dt><dd>Caída desde el último máximo de la cuenta hasta el punto más bajo.</dd></div>
+    <div><dt>ATR</dt><dd>Rango verdadero medio: lo que se mueve el precio de media en una vela.</dd></div>
+    <div><dt>Sobreajuste</dt><dd>Parámetros que encajan con el ruido del pasado y fallan en el futuro.</dd></div>
+    <div><dt>Fuera de muestra</dt><dd>Datos reservados que no se usan para elegir parámetros y sirven de examen.</dd></div>
+    <div><dt>Payoff</dt><dd>Ganancia media de las operaciones ganadoras ÷ pérdida media de las perdedoras.</dd></div>
+    <div><dt>Esperanza</dt><dd>Lo que ganas de media por operación, contando aciertos y fallos.</dd></div>
+    <div><dt>VaR</dt><dd>Value at Risk: pérdida que solo se supera en un porcentaje pequeño de los días.</dd></div>
+    <div><dt>Volatilidad</dt><dd>Desviación típica de los rendimientos, anualizada. Mide cuánto «tiembla» el precio.</dd></div>
+    <div><dt>Beta</dt><dd>Sensibilidad frente al S&amp;P 500: beta 1,5 significa que se mueve un 50 % más que el índice.</dd></div>
+    <div><dt>Trailing stop</dt><dd>Stop que sube con el precio a una distancia fija y nunca baja.</dd></div>
+    <div><dt>Deslizamiento</dt><dd>Diferencia entre el precio esperado y el que te dan al ejecutar.</dd></div>
+  </dl>
+  <footer>FinanzasOS es una herramienta educativa. Nada de lo que muestra es asesoramiento financiero; los resultados pasados no garantizan resultados futuros. Datos: Yahoo Finance, Binance, CNN y alternative.me. Gráficos: TradingView Lightweight Charts™.</footer>
+</section>
+</main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const eur = (x, d = 0) => x.toLocaleString('es-ES', { maximumFractionDigits: d, minimumFractionDigits: d }) + ' €';
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const KEY = 'finanzasos-guia-progreso';
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { done = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+
+  /* progreso de ejercicios */
+  const exs = $$('.ex');
+  function paint() {
+    let n = 0;
+    exs.forEach(ex => {
+      const on = !!done[ex.dataset.ex]; if (on) n++;
+      ex.classList.toggle('done', on);
+      const b = $('.done-btn', ex); b.setAttribute('aria-pressed', on); b.textContent = on ? 'Hecho ✓' : 'Marcar como hecho';
+    });
+    $('#progtxt').textContent = n + ' / ' + exs.length + ' ejercicios';
+    $('#progbar').style.width = (100 * n / exs.length) + '%';
+    $$('#toc a').forEach(a => {
+      const sec = $(a.getAttribute('href')); const ex = sec && $('.ex', sec);
+      let ck = $('.ck', a);
+      if (ex && done[ex.dataset.ex]) { if (!ck) { ck = document.createElement('span'); ck.className = 'ck'; ck.textContent = '✓'; a.appendChild(ck); } }
+      else if (ck) ck.remove();
+    });
+  }
+  exs.forEach(ex => $('.done-btn', ex).addEventListener('click', () => { done[ex.dataset.ex] = !done[ex.dataset.ex]; save(); paint(); }));
+  paint();
+
+  /* índice activo */
+  const links = $$('#toc a'); const secs = links.map(a => $(a.getAttribute('href'))).filter(Boolean);
+  function spy() {
+    const y = window.scrollY + 120; let cur = secs[0];
+    secs.forEach(s => { if (s.offsetTop <= y) cur = s; });
+    links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur.id));
+  }
+  window.addEventListener('scroll', spy, { passive: true }); spy();
+
+  /* interés compuesto */
+  function comp() {
+    const P = +$('#ci0').value || 0, M = +$('#ciM').value || 0, r = (+$('#ciR').value || 0) / 100, Y = Math.max(1, Math.min(60, +$('#ciY').value || 1));
+    const rm = Math.pow(1 + r, 1 / 12) - 1; let v = P, a = P; const sv = [P], sa = [P];
+    for (let m = 1; m <= Y * 12; m++) { v = v * (1 + rm) + M; a += M; if (m % 12 === 0) { sv.push(v); sa.push(a); } }
+    $('#ciF').textContent = eur(v); $('#ciA').textContent = eur(a); $('#ciI').textContent = eur(v - a);
+    drawArea($('#ciC'), sv, sa);
+  }
+  function drawArea(cv, sv, sa) {
+    const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight; if (!W) return;
+    cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const L = 64, R = 10, T = 10, B = 22, max = Math.max(...sv, 1) * 1.05, n = sv.length - 1;
+    const X = i => L + (W - L - R) * i / n, Yp = v => T + (H - T - B) * (1 - v / max);
+    g.font = '11px ' + css('--mono'); g.fillStyle = css('--muted'); g.strokeStyle = css('--line'); g.lineWidth = 1;
+    for (let k = 0; k <= 4; k++) { const v = max * k / 4, y = Yp(v); g.beginPath(); g.moveTo(L, y); g.lineTo(W - R, y); g.stroke(); g.textAlign = 'right'; g.fillText(v >= 1e6 ? (v / 1e6).toFixed(1) + ' M' : Math.round(v / 1000) + ' k', L - 6, y + 4); }
+    g.textAlign = 'center'; [0, Math.round(n / 2), n].forEach(i => g.fillText('año ' + i, X(i), H - 6));
+    const area = (s, col, alpha) => { g.beginPath(); g.moveTo(X(0), Yp(0)); s.forEach((v, i) => g.lineTo(X(i), Yp(v))); g.lineTo(X(n), Yp(0)); g.closePath(); g.globalAlpha = alpha; g.fillStyle = col; g.fill(); g.globalAlpha = 1;
+      g.beginPath(); s.forEach((v, i) => i ? g.lineTo(X(i), Yp(v)) : g.moveTo(X(i), Yp(v))); g.strokeStyle = col; g.lineWidth = 2; g.stroke(); };
+    area(sv, css('--gold'), .18); area(sa, css('--cyan'), .14);
+    g.fillStyle = css('--gold'); g.beginPath(); g.arc(X(n), Yp(sv[n]), 3.5, 0, 7); g.fill();
+    g.textAlign = 'left'; g.font = '600 11px ' + css('--sans'); g.fillStyle = css('--gold'); g.fillText('■ capital', L + 8, T + 12); g.fillStyle = css('--cyan'); g.fillText('■ aportado', L + 80, T + 12);
+  }
+  $$('#tcomp input').forEach(i => i.addEventListener('input', comp));
+  window.addEventListener('resize', comp); comp();
+
+  /* intérprete de métricas */
+  const fx = (x, d) => (+x).toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+  function met() {
+    const sh = +$('#mSh').value, pf = +$('#mPF').value, dd = -Math.abs(+$('#mDD').value), n = +$('#mN').value, cg = +$('#mCg').value, bh = +$('#mBh').value;
+    const G = ['g', 'BIEN'], Y = ['y', 'REGULAR'], R = ['r', 'ALERTA'];
+    const out = [
+      [sh > 1 ? G : sh >= .5 ? Y : R, `Sharpe ${fx(sh, 2)}: ` + (sh > 1 ? 'buena rentabilidad para el riesgo asumido.' : sh >= .5 ? 'aceptable, pero mejorable.' : 'la rentabilidad no compensa la volatilidad.')],
+      [pf > 1.6 ? G : pf >= 1.2 ? Y : R, `Factor de beneficio ${fx(pf, 2)}: ` + (pf > 1.6 ? 'las ganancias superan con holgura a las pérdidas.' : pf >= 1.2 ? 'margen estrecho: las comisiones pueden comérselo.' : pf >= 1 ? 'casi no gana; con costes reales perdería.' : 'pierde dinero.')],
+      [dd > -20 ? G : dd >= -40 ? Y : R, `Drawdown ${fx(dd, 0)} %: ` + (dd > -20 ? 'caídas soportables.' : dd >= -40 ? 'caídas duras; ¿aguantarías verlas sin tocar nada?' : 'la mayoría de personas abandonaría la estrategia en esta caída.') + ` Para recuperarlo hace falta un +${(100 * (1 / (1 + dd / 100) - 1)).toFixed(0)} %.`],
+      [n > 100 ? G : n >= 30 ? Y : R, `${n} operaciones: ` + (n > 100 ? 'muestra estadísticamente sólida.' : n >= 30 ? 'muestra suficiente, pero amplía el periodo o los activos.' : 'pocas operaciones; el resultado puede ser suerte.')],
+      [cg >= bh ? G : (cg >= bh * .7 && dd > -25) ? Y : R, cg >= bh ? `Bate a comprar y mantener por ${fx((cg - bh), 1)} puntos porcentuales al año.` : `Rinde ${fx((bh - cg), 1)} puntos porcentuales al año menos que comprar y mantener` + (cg >= bh * .7 && dd > -25 ? '; puede compensar si reduce mucho el drawdown.' : '; salvo que el drawdown sea mucho menor, no merece la pena.')],
+    ];
+    const calmar = dd ? cg / Math.abs(dd) : 0;
+    out.push([calmar > 1 ? G : calmar >= .3 ? Y : R, `Calmar ${fx(calmar, 2)}: ` + (calmar > 1 ? 'recupera su peor caída en menos de un año de rentabilidad media.' : 'tarda más de un año de rentabilidad media en recuperar su peor caída.')]);
+    $('#mOut').innerHTML = out.map(([[c, t], txt]) => `<li><span class="pill ${c}">${t}</span><span>${txt}</span></li>`).join('');
+  }
+  $$('#tmet input').forEach(i => i.addEventListener('input', met)); met();
+
+  /* tamaño de posición */
+  function risk() {
+    const cap = +$('#rCap').value, pct = +$('#rPct').value / 100, e = +$('#rIn').value, sl = +$('#rSL').value, tp = +$('#rTP').value;
+    const dist = Math.abs(e - sl);
+    if (!dist || !e) { ['#rQ', '#rV', '#rL', '#rRR'].forEach(s => $(s).textContent = '—'); return; }
+    const q = Math.floor(cap * pct / dist * 1e4) / 1e4, val = q * e;
+    $('#rQ').textContent = q.toLocaleString('es-ES', { maximumFractionDigits: 4 });
+    $('#rV').textContent = eur(val, 2) + (val > cap ? ' (apalancado)' : ` · ${(100 * val / cap).toFixed(0)} %`);
+    $('#rL').textContent = '−' + eur(q * dist, 2);
+    $('#rRR').textContent = '1 : ' + (Math.abs(tp - e) / dist).toFixed(2);
+  }
+  $$('#trisk input').forEach(i => i.addEventListener('input', risk)); risk();
+
+  /* símbolos copiables */
+  const SY = [['BTCUSDT', 'Bitcoin · Binance'], ['ETHUSDT', 'Ethereum · Binance'], ['SOLUSDT', 'Solana · Binance'], ['^GSPC', 'S&P 500'], ['^IBEX', 'IBEX 35'], ['^GDAXI', 'DAX 40'],
+    ['SAN.MC', 'Banco Santander'], ['ITX.MC', 'Inditex'], ['AAPL', 'Apple'], ['NVDA', 'Nvidia'], ['SPY', 'ETF S&P 500'], ['EURUSD=X', 'Euro / dólar'], ['GC=F', 'Oro (futuro)'], ['^TNX', 'Bono USA 10 años']];
+  $('#syms').innerHTML = SY.map(([s, n]) => `<div class="sym"><span><code>${s}</code> ${n}</span><button type="button" data-s="${s}">Copiar</button></div>`).join('');
+  $('#syms').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const ok = () => { b.textContent = 'Copiado'; setTimeout(() => b.textContent = 'Copiar', 1400); };
+    const fallback = () => { const r = document.createRange(); r.selectNodeContents(b.previousElementSibling.querySelector('code')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = 'Ctrl+C'; };
+    try { navigator.clipboard.writeText(b.dataset.s).then(ok, fallback); } catch (err) { fallback(); }
+  });
+})();
+</script>

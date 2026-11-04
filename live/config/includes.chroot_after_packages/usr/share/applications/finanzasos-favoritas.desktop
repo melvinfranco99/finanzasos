@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Mis empresas favoritas
+GenericName=¿Compro o vendo?
+Comment=Veredicto por plazo, rentabilidad estimada y datos técnicos, fundamentales y macro
+Exec=/opt/finanzas/bin/finanzas favoritas
+Icon=starred
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

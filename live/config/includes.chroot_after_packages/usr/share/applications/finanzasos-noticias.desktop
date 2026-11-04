@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Noticias financieras
+GenericName=Noticias
+Comment=Titulares de mercados en tiempo real
+Exec=/opt/finanzas/bin/finanzas noticias
+Icon=internet-news-reader
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

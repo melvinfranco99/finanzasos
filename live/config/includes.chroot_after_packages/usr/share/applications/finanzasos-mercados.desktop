@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Mercados en vivo
+GenericName=Cotizaciones
+Comment=Índices, acciones, ETFs, divisas, materias primas, bonos y cripto
+Exec=/opt/finanzas/bin/finanzas mercados
+Icon=view-list-details
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

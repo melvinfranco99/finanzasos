@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Optimizador de estrategias
+GenericName=Optimizador
+Comment=Busca los mejores parámetros con validación fuera de muestra
+Exec=/opt/finanzas/bin/finanzas optimizador
+Icon=preferences-system
+Terminal=false
+Categories=Office;Finance;X-FinanzasOS;
+Keywords=finanzas;bolsa;trading;inversión;mercados;
+StartupWMClass=FinanzasOS

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channel name="xfwm4" version="1.0">
+  <property name="general" type="empty">
+    <property name="theme" type="string" value="Arc-Dark"/>
+    <property name="title_font" type="string" value="Inter Bold 10"/>
+    <property name="title_alignment" type="string" value="center"/>
+    <property name="button_layout" type="string" value="O|HMC"/>
+    <property name="use_compositing" type="bool" value="true"/>
+    <property name="workspace_count" type="int" value="8"/>
+    <property name="workspace_names" type="array">
+      <value type="string" value="1 Panel"/><value type="string" value="2 Gráficos"/><value type="string" value="3 Favoritas"/><value type="string" value="4 Análisis"/>
+      <value type="string" value="5 Sentimiento"/><value type="string" value="6 Backtest"/><value type="string" value="7 Optimizador"/><value type="string" value="8 Calculadoras"/>
+    </property>
+  </property>
+</channel>
