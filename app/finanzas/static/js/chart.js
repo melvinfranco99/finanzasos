@@ -35,6 +35,10 @@ App.views.grafico = async (main) => {
   main.appendChild(el(`<div class="chart-wrap"><div id="chartbox"><div class="wm" id="wm"></div><div class="legend" id="legend"></div><div id="cv" style="position:absolute;inset:0"></div></div>
     <div class="side"><div class="card" id="qcard">${loading()}</div><div class="card" id="tcard">${loading()}</div><div class="card" id="pcard"></div></div></div>`));
 
+  // Ajusta la altura del gráfico al hueco visible para que el eje de fechas quede siempre a la vista
+  const wrap = main.querySelector('.chart-wrap');
+  const fitH = () => { const top = wrap.getBoundingClientRect().top + main.scrollTop; wrap.style.height = Math.max(480, innerHeight - top - 22) + 'px'; };
+  fitH(); addEventListener('resize', fitH); App.onLeave(() => removeEventListener('resize', fitH));
   let chart = null, mainSeries = null, data = null, lineMode = false, userLines = [], srLines = [], seriesByInd = {};
   const fillRanges = () => {
     const opts = RANGES[st.tf] || RANGES['1d'];
@@ -125,7 +129,8 @@ App.views.grafico = async (main) => {
     if (!data) return;
     if (chart) { chart.remove(); chart = null; }
     const d = data, prec = precisionFor(d.c[d.c.length - 1]);
-    chart = LightweightCharts.createChart($('#cv'), chartTheme());
+    const intra = isIntraday(st.tf);
+    chart = LightweightCharts.createChart($('#cv'), chartTheme({ localization: { locale: 'es-ES', timeFormatter: t => crossFmt(t, intra) } }));
     App.onLeave(() => { try { chart && chart.remove(); } catch (e) {} });
     const L = LightweightCharts, pf = { type: 'price', precision: prec, minMove: 1 / 10 ** prec };
     if (st.ctype === 'line') mainSeries = chart.addSeries(L.LineSeries, { color: '#f5b700', lineWidth: 2, priceFormat: pf });

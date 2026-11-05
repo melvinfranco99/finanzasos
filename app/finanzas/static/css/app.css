@@ -105,7 +105,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; color: var(--tx2); fo
 .chk { display: flex; align-items: center; gap: 6px; color: var(--tx2); cursor: pointer; }
 
 /* --- Gráfico principal --- */
-.chart-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 12px; height: calc(100vh - 150px); min-height: 560px; }
+.chart-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 12px; height: calc(100vh - 230px); min-height: 480px; }
 #chartbox { position: relative; background: var(--bg2); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
 #chartbox .legend { position: absolute; left: 12px; top: 8px; z-index: 5; font: 12px var(--mono); pointer-events: none; text-shadow: 0 1px 2px #000; }
 #chartbox .legend .sym { font: 700 15px var(--sans); color: var(--tx); }

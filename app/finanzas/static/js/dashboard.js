@@ -118,13 +118,30 @@ App.views.noticias = async (main) => {
   load(); App.every(120000, load);
 };
 
+/* Fechas del eje temporal: siempre día + mes (+ año u hora según el zoom), en hora local */
+const _MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const _DIA = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+function _tdate(t) { return typeof t === 'number' ? new Date(t * 1000) : typeof t === 'string' ? new Date(t + 'T00:00:00') : new Date(t.year, t.month - 1, t.day); }
+const _p2 = n => String(n).padStart(2, '0');
+function tickFmt(t, type) {
+  const d = _tdate(t), dm = `${d.getDate()} ${_MES[d.getMonth()]}`, hm = `${_p2(d.getHours())}:${_p2(d.getMinutes())}`;
+  if (type === 0) return String(d.getFullYear());                          // año
+  if (type === 1) return `${_MES[d.getMonth()]} ${d.getFullYear()}`;       // mes
+  if (type === 2) return dm;                                               // día
+  return `${dm} ${hm}`;                                                    // hora
+}
+function crossFmt(t, withTime = false) {
+  const d = _tdate(t), base = `${_DIA[d.getDay()]} ${d.getDate()} ${_MES[d.getMonth()]} ${d.getFullYear()}`;
+  return withTime ? `${base}  ${_p2(d.getHours())}:${_p2(d.getMinutes())}` : base;
+}
+
 function chartTheme(extra = {}) {
   return Object.assign({
     layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#9fb0c6', fontFamily: 'JetBrains Mono, monospace', fontSize: 11, panes: { separatorColor: '#1d2a3d', separatorHoverColor: '#f5b70044', enableResize: true }, attributionLogo: false },
     grid: { vertLines: { color: '#111b2a' }, horzLines: { color: '#111b2a' } },
-    rightPriceScale: { borderColor: '#1d2a3d' }, timeScale: { borderColor: '#1d2a3d', timeVisible: true, secondsVisible: false },
+    rightPriceScale: { borderColor: '#1d2a3d' }, timeScale: { borderColor: '#1d2a3d', timeVisible: true, secondsVisible: false, tickMarkFormatter: tickFmt, tickMarkMaxCharacterLength: 12, minimumHeight: 26 },
     crosshair: { mode: 0, vertLine: { color: '#f5b70088', labelBackgroundColor: '#5a4507' }, horzLine: { color: '#f5b70088', labelBackgroundColor: '#5a4507' } },
-    localization: { locale: 'es-ES' },
+    localization: { locale: 'es-ES', timeFormatter: t => crossFmt(t) },
     autoSize: true,
   }, extra);
 }
